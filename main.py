@@ -57,9 +57,17 @@ class Main:
         
         if old_checksum != new_checksum:
             print(f'SDE checksum NOT matched!')
+            self.update_checksum(new_checksum)
         else: 
             print(f'SDE checksum match')    
             
+    def update_checksum(self, new_checksum):
+        try:
+            file = open(self.file_checksum, "w")
+            file.write(new_checksum)
+        except Exception as e:
+            print(f'failed to write new SDE checksum: {e}')
+    
     def run(self):
         #load endpoints
         self.load_endpoints()
