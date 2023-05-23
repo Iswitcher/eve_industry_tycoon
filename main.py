@@ -1,6 +1,10 @@
+import datetime
 import json
 import requests
-import sqlite3
+import zipfile
+import io
+import os
+# import sqlite3
 
 '''
 TODO:
@@ -15,40 +19,65 @@ class Main:
 
     endpoints = {}
     
+
+    # get current time
+    def time(self):
+        time = datetime.datetime.now()
+        time = time.strftime('%Y-%m-%d %H:%M:%S')
+        return time
+    
+
+    # compose log message
+    def log(self, message, status=''):
+        if status == 'w':
+            p_status = '[WARNING]'
+        elif status == 'e':
+            p_status = '[ERROR]'
+        else: p_status = ''
+        print(f'[{self.time()}]{p_status} {message}')
+      
+    
     # load URL endpoints file
     def load_endpoints(self):
+        self.log('ESI endpoints config loading')
         try: 
             file = open(self.file_endpoints)
             self.endpoints = json.load(file)
-            
-            print(f'ESI endpoints loaded')
+            self.log('ESI endpoints config loaded')
         except Exception as e:
-            print(f'ESI endpoints NOT loaded: {e}')
+            self.log(f'Error while loading ESI endpoints config: {e}', 'e')
+    
     
     # get the old sde checksum
     def load_old_checksum(self):
+        self.log('Loading old SDE checksum')
         try:
             file = open(self.file_checksum)
             self.checksum = file.read()
-            
-            print(f'SDE old checksum is: {self.checksum}')
+            self.log(f'SDE old checksum is: {self.checksum}')
             return self.checksum
+        except os.path.exists(self.file_checksum):
+            self.log('SDE checksum not found!', 'w')
+            return ''
         except Exception as e:
-            print(f'SDE checksum NOT loaded: {e}')            
+            print(f'[{self.time()}][ERROR] SDE checksum NOT loaded: {e}')            
+    
     
     # get the new sde checksum
     def load_new_checksum(self):
         try:
             sde_checksum_url = self.endpoints['sde_checksum_url']
-            response = requests.get(sde_checksum_url)
+            self.log(f'Fetching SDE checksum at: \n {sde_checksum_url}')
+            response = requests.get(sde_checksum_url, allow_redirects=True)
             if response.status_code == 200:
-                print(f'SDE new checksum is: {response.text}')
+                self.log(f'SDE new checksum is: {response.text}')
                 return response.text
             else:
-                print(f'WARNING: HTTP response code not 200!')
+                self.log(f'HTTP response code not 200: {response.status_code}', 'w')
                 return ''
         except Exception as e:
-            print(f'failed to get new SDE checksum: {e}')
+            self.log(f'Failed to get new SDE checksum: {e}')
+        
             
     # is checksum changed?   
     def validate_sde_hash(self):        
@@ -56,24 +85,57 @@ class Main:
         new_checksum = self.load_new_checksum()
         
         if old_checksum != new_checksum:
-            print(f'SDE checksum NOT matched!')
+            self.log(f'SDE checksum NOT matched!')
             self.update_checksum(new_checksum)
+            self.download_sde_zip()
         else: 
-            print(f'SDE checksum match')    
+            self.log(f'SDE checksum matched')    
+       
             
+    # save new sde checksum
     def update_checksum(self, new_checksum):
         try:
             file = open(self.file_checksum, "w")
             file.write(new_checksum)
+            self.log(f'Checksum updated: {new_checksum}')
         except Exception as e:
-            print(f'failed to write new SDE checksum: {e}')
+            self.log(f'Failed to write new SDE checksum: {e}')
+  
+
+    # download sde zip
+    def download_sde_zip(self):
+        url = self.endpoints['sde_download_url']
+        self.log('Fetching zip')
+        response = requests.get(url, stream=True)
+        
+        if response.status_code == 200:
+            zip = io.BytesIO(response.content)
+            if os.path.exists('/sde'):
+                self.log(f'Clearing old SDE records')
+                os.remove('/sde')
+            self.extract_zip(zip)
+        else:
+            self.log(f'Failed to download zip: HTTP {response.status_code}', 'e')
+        
     
+    # exctract zip to app folder    
+    def extract_zip(self, data):
+        try:
+            self.log('Extracting zip')
+            with zipfile.ZipFile(data, 'r') as zip:
+                zip.extractall('')
+                self.log('ZIP Extracted successfully')
+        except Exception as e:
+            self.log(f'Error while extracting: {e}', 'e')
+
+
     def run(self):
         #load endpoints
         self.load_endpoints()
         
         #check SDE hash 
-        self.validate_sde_hash()    
+        self.validate_sde_hash()  
+            
             
 if __name__ == '__main__':
     Main().run()
