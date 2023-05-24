@@ -1,5 +1,6 @@
 import datetime
 import json
+import sqlite3
 import requests
 import zipfile
 import io
@@ -18,6 +19,9 @@ class Main:
     file_checksum   = 'sde_checksum'
 
     endpoints = {}
+    
+    sde_path = 'sde'
+    sde_db_path = 'sde.db'
     
 
     # get current time
@@ -56,18 +60,16 @@ class Main:
             self.checksum = file.read()
             self.log(f'SDE old checksum is: {self.checksum}')
             return self.checksum
-        except os.path.exists(self.file_checksum):
-            self.log('SDE checksum not found!', 'w')
-            return ''
         except Exception as e:
-            print(f'[{self.time()}][ERROR] SDE checksum NOT loaded: {e}')            
+            self.log(f'SDE checksum NOT found/loaded: {e}', 'w')
+            return ''            
     
     
     # get the new sde checksum
     def load_new_checksum(self):
         try:
             sde_checksum_url = self.endpoints['sde_checksum_url']
-            self.log(f'Fetching SDE checksum at: \n {sde_checksum_url}')
+            self.log(f'Fetching SDE checksum at: {sde_checksum_url}')
             response = requests.get(sde_checksum_url, allow_redirects=True)
             if response.status_code == 200:
                 self.log(f'SDE new checksum is: {response.text}')
@@ -84,9 +86,13 @@ class Main:
         old_checksum = self.load_old_checksum()
         new_checksum = self.load_new_checksum()
         
+        
         if old_checksum != new_checksum:
-            self.log(f'SDE checksum NOT matched!')
+            self.log(f'SDE checksum NOT equal', 'w')
             self.update_checksum(new_checksum)
+            self.download_sde_zip()
+        elif os.path.exists(self.sde_path) == False:
+            self.log(f'SDE folder not found! Double checking.')
             self.download_sde_zip()
         else: 
             self.log(f'SDE checksum matched')    
@@ -110,9 +116,9 @@ class Main:
         
         if response.status_code == 200:
             zip = io.BytesIO(response.content)
-            if os.path.exists('/sde'):
+            if os.path.exists(self.sde_path):
                 self.log(f'Clearing old SDE records')
-                os.remove('/sde')
+                os.remove(self.sde_path)
             self.extract_zip(zip)
         else:
             self.log(f'Failed to download zip: HTTP {response.status_code}', 'e')
@@ -129,12 +135,22 @@ class Main:
             self.log(f'Error while extracting: {e}', 'e')
 
 
+    
+    def parse_sde_into_sql(self):
+        if not os.path.exists(self.sde_db_path):
+            conn = sqlite3.connect(self.sde_db_path)
+            conn.commit()
+            conn.close
+
     def run(self):
-        #load endpoints
+        # load endpoints
         self.load_endpoints()
         
-        #check SDE hash 
+        # check SDE hash 
         self.validate_sde_hash()  
+
+        # parse SDE dump into SQLite
+        self.parse_sde_into_sql()
             
             
 if __name__ == '__main__':
