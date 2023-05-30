@@ -5,7 +5,11 @@ import requests
 import zipfile
 import io
 import os
-# import sqlite3
+import glob
+import yaml
+
+from collections import namedtuple
+from json import JSONEncoder
 
 '''
 TODO:
@@ -14,15 +18,17 @@ TODO:
  - load icons
 '''
 
+def customJsonDecoder(json):
+        return namedtuple('X', json.keys())(*json.values())
+
 class Main:
     file_endpoints  = 'esi_endpoints'
     file_checksum   = 'sde_checksum'
+    file_config     = 'config'
 
     endpoints = {}
-    
-    sde_path = 'sde'
-    sde_db_path = 'sde.db'
-    
+    config = {}
+
 
     # get current time
     def time(self):
@@ -39,17 +45,26 @@ class Main:
             p_status = '[ERROR]'
         else: p_status = ''
         print(f'[{self.time()}]{p_status} {message}')
-      
+    
+    
+    def load_config(self):
+        self.log(f'Config loading')
+        try: 
+            file = open(self.file_config)
+            self.config = json.load(file, object_hook=customJsonDecoder)
+            self.log(f'Config loaded')
+        except Exception as e:
+            self.log(f'Error while loading main config: {e}', 'e')
     
     # load URL endpoints file
     def load_endpoints(self):
-        self.log('ESI endpoints config loading')
+        self.log('ESI endpoints loading')
         try: 
             file = open(self.file_endpoints)
             self.endpoints = json.load(file)
-            self.log('ESI endpoints config loaded')
+            self.log('ESI endpoints loaded')
         except Exception as e:
-            self.log(f'Error while loading ESI endpoints config: {e}', 'e')
+            self.log(f'Error while loading ESI endpoints: {e}', 'e')
     
     
     # get the old sde checksum
@@ -91,7 +106,7 @@ class Main:
             self.log(f'SDE checksum NOT equal', 'w')
             self.update_checksum(new_checksum)
             self.download_sde_zip()
-        elif os.path.exists(self.sde_path) == False:
+        elif os.path.exists(self.config.sde_path) == False:
             self.log(f'SDE folder not found! Double checking.')
             self.download_sde_zip()
         else: 
@@ -116,9 +131,9 @@ class Main:
         
         if response.status_code == 200:
             zip = io.BytesIO(response.content)
-            if os.path.exists(self.sde_path):
+            if os.path.exists(self.config.sde_path):
                 self.log(f'Clearing old SDE records')
-                os.remove(self.sde_path)
+                os.remove(self.config.sde_path)
             self.extract_zip(zip)
         else:
             self.log(f'Failed to download zip: HTTP {response.status_code}', 'e')
@@ -134,15 +149,37 @@ class Main:
         except Exception as e:
             self.log(f'Error while extracting: {e}', 'e')
 
-
     
     def parse_sde_into_sql(self):
-        if not os.path.exists(self.sde_db_path):
-            conn = sqlite3.connect(self.sde_db_path)
+        self.check_db_file()
+        files = self.get_file_list()
+            
+    
+    def check_db_file(self):
+        if not os.path.exists(self.config.sde_db_path):
+            self.log(f'No DB file found! Creating a new one')
+            conn = sqlite3.connect(self.config.sde_db_path)
             conn.commit()
             conn.close
+        else: 
+            self.log(f'DB file found')  
+    
+    
+    def get_file_list(self):
+        output = []
+        all_files = glob.glob(self.config.sde_path + '/**/*.yaml', recursive=True)
+        for file in all_files:
+            for to_sql in self.config.sde_to_sql_files:
+                if file.endswith(to_sql):
+                    output.append(to_sql)
+                    self.log(f'Adding {to_sql} to parse queue')
+        return output
+                    
 
     def run(self):
+        # load config
+        self.load_config()
+        
         # load endpoints
         self.load_endpoints()
         
@@ -151,7 +188,7 @@ class Main:
 
         # parse SDE dump into SQLite
         self.parse_sde_into_sql()
-            
+           
             
 if __name__ == '__main__':
     Main().run()
