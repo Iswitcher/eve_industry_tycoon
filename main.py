@@ -7,6 +7,7 @@ import io
 import os
 import glob
 import yaml
+import re
 
 from collections import namedtuple
 from json import JSONEncoder
@@ -47,6 +48,7 @@ class Main:
         print(f'[{self.time()}]{p_status} {message}')
     
     
+    # load config file
     def load_config(self):
         self.log(f'Config loading')
         try: 
@@ -55,6 +57,7 @@ class Main:
             self.log(f'Config loaded')
         except Exception as e:
             self.log(f'Error while loading main config: {e}', 'e')
+    
     
     # load URL endpoints file
     def load_endpoints(self):
@@ -150,11 +153,16 @@ class Main:
             self.log(f'Error while extracting: {e}', 'e')
 
     
+    
     def parse_sde_into_sql(self):
         self.check_db_file()
         files = self.get_file_list()
-            
+        for file in files:
+            self.log(f'Extracting {file}')
+            self.extract_yaml(file)
+                    
     
+    # create db file if not exists
     def check_db_file(self):
         if not os.path.exists(self.config.sde_db_path):
             self.log(f'No DB file found! Creating a new one')
@@ -165,17 +173,64 @@ class Main:
             self.log(f'DB file found')  
     
     
+    # match downloaded files vs config
     def get_file_list(self):
         output = []
         all_files = glob.glob(self.config.sde_path + '/**/*.yaml', recursive=True)
         for file in all_files:
             for to_sql in self.config.sde_to_sql_files:
                 if file.endswith(to_sql):
-                    output.append(to_sql)
+                    output.append(file)
                     self.log(f'Adding {to_sql} to parse queue')
         return output
-                    
+    
+    
+    # extract yaml into sql table
+    def extract_yaml(self, file):
+        try:
+            table = self.yaml_get_table_name(file)
+            self.check_or_create_sql_table(table)
+        except Exception as e:
+            self.log(f'Error while extracting yaml: {e}', 'e')   
+             
+        
+    
+    # get sql table name from filename    
+    def yaml_get_table_name(self, path):
+        regex = '\w+(?=.yaml)'
+        return re.search(regex, path).group()
+    
+    
+    # create sql table if not exsists
+    def check_or_create_sql_table(self, table):
+        try:
+            conn = sqlite3.connect(self.config.sde_db_path)
+            if self.table_exists(table, conn):
+                self.log(f'The table {table} exists.')
+            else:
+                self.log(f'The table {table} does not exist. Creating.')
+                self.sql_create_new_table(conn, table)
+            conn.close
+        except Exception as e:
+            self.log(f'Error while checking db table: {e}', 'e') 
+    
+    def table_exists(self, table, conn):
+        cursor = conn.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table,))
+        return cursor.fetchone() is not None
+    
+    # create table with standard fields 
+    def sql_create_new_table(self, conn, table):
+        cursor = conn.cursor()
+        cursor.execute(f'''CREATE TABLE IF NOT EXISTS {table} (
+                    uid INTEGER PRIMARY KEY,
+                    start_date DATE,
+                    end_date DATE
+                )''')
+        self.log(f'Table {table} created!')       
+        
 
+    # main execution
     def run(self):
         # load config
         self.load_config()
