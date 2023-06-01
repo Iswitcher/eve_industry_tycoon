@@ -153,7 +153,7 @@ class Main:
             self.log(f'Error while extracting: {e}', 'e')
 
     
-    
+    # take yaml and paste its data into sql    
     def parse_sde_into_sql(self):
         self.check_db_file()
         files = self.get_file_list()
@@ -193,8 +193,7 @@ class Main:
         except Exception as e:
             self.log(f'Error while extracting yaml: {e}', 'e')   
              
-        
-    
+       
     # get sql table name from filename    
     def yaml_get_table_name(self, path):
         regex = '\w+(?=.yaml)'
@@ -214,10 +213,13 @@ class Main:
         except Exception as e:
             self.log(f'Error while checking db table: {e}', 'e') 
     
+    
+    # check if sql table exists
     def table_exists(self, table, conn):
         cursor = conn.cursor()
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table,))
         return cursor.fetchone() is not None
+    
     
     # create table with standard fields 
     def sql_create_new_table(self, conn, table):
