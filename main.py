@@ -9,6 +9,10 @@ import glob
 import yaml
 import re
 
+from web import web
+from db import db
+from log import log
+
 from collections import namedtuple
 from json import JSONEncoder
 
@@ -104,7 +108,6 @@ class Main:
         old_checksum = self.load_old_checksum()
         new_checksum = self.load_new_checksum()
         
-        
         if old_checksum != new_checksum:
             self.log(f'SDE checksum NOT equal', 'w')
             self.update_checksum(new_checksum)
@@ -154,27 +157,21 @@ class Main:
 
     
     # take yaml and paste its data into sql    
-    def parse_sde_into_sql(self):
-        self.check_db_file()
-        files = self.get_file_list()
-        for file in files:
-            self.log(f'Extracting {file}')
-            self.extract_yaml(file)
+    def sde_convert(self):
+        sde_db_path = self.config.sde_db_path
+        conn = db.connect(sde_db_path)
+        
+        file_list = self.filter_yaml_file_list()
+        for path in file_list:
+            log.info(f'Extracting {path}')
+            table = self.yaml_get_table_name(path)
+            filedata = self.get_yaml_data(path)
+            self.yaml_2_sql(table, filedata)
+        db.disconnect(sde_db_path)
                     
-    
-    # create db file if not exists
-    def check_db_file(self):
-        if not os.path.exists(self.config.sde_db_path):
-            self.log(f'No DB file found! Creating a new one')
-            conn = sqlite3.connect(self.config.sde_db_path)
-            conn.commit()
-            conn.close
-        else: 
-            self.log(f'DB file found')  
-    
-    
+
     # match downloaded files vs config
-    def get_file_list(self):
+    def filter_yaml_file_list(self):
         output = []
         all_files = glob.glob(self.config.sde_path + '/**/*.yaml', recursive=True)
         for file in all_files:
@@ -182,54 +179,32 @@ class Main:
                 if file.endswith(to_sql):
                     output.append(file)
                     self.log(f'Adding {to_sql} to parse queue')
-        return output
+        return output    
+
     
-    
-    # extract yaml into sql table
-    def extract_yaml(self, file):
-        try:
-            table = self.yaml_get_table_name(file)
-            self.check_or_create_sql_table(table)
-        except Exception as e:
-            self.log(f'Error while extracting yaml: {e}', 'e')   
-             
-       
     # get sql table name from filename    
     def yaml_get_table_name(self, path):
         regex = '\w+(?=.yaml)'
         return re.search(regex, path).group()
     
     
-    # create sql table if not exsists
-    def check_or_create_sql_table(self, table):
+    # get yaml data from file
+    def get_yaml_data(self, path):
         try:
-            conn = sqlite3.connect(self.config.sde_db_path)
-            if self.table_exists(table, conn):
-                self.log(f'The table {table} exists.')
-            else:
-                self.log(f'The table {table} does not exist. Creating.')
-                self.sql_create_new_table(conn, table)
-            conn.close
+            with open(path, 'r') as file:
+                yaml_object = yaml.safe_load(file)
+                return file
         except Exception as e:
-            self.log(f'Error while checking db table: {e}', 'e') 
+            log.critical(f'Failed to get yaml data (file {path}): {e}') 
+     
     
+    # Extract yaml into sql table
+    def yaml_2_sql(self, table, data):
+        log.critical('DUMMY')
+    #     with open('your_file.yaml', 'r') as file:
+    # # Load the YAML contents into a Python object
+    # yaml_object = yaml.safe_load(file)
     
-    # check if sql table exists
-    def table_exists(self, table, conn):
-        cursor = conn.cursor()
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table,))
-        return cursor.fetchone() is not None
-    
-    
-    # create table with standard fields 
-    def sql_create_new_table(self, conn, table):
-        cursor = conn.cursor()
-        cursor.execute(f'''CREATE TABLE IF NOT EXISTS {table} (
-                    uid INTEGER PRIMARY KEY,
-                    start_date DATE,
-                    end_date DATE
-                )''')
-        self.log(f'Table {table} created!')       
         
 
     # main execution
@@ -244,7 +219,7 @@ class Main:
         self.validate_sde_hash()  
 
         # parse SDE dump into SQLite
-        self.parse_sde_into_sql()
+        self.sde_convert()
            
             
 if __name__ == '__main__':
