@@ -1,6 +1,6 @@
 # What it is about
 
-If you ever tried to play EvE online as a trader or a manufacturer - you might have even heard about people making spreadsheets or using side project to track expenses, calculate profits, etc.
+If you ever tried to play EvE online as a trader or a manufacturer - you might have even heard about people making spreadsheets or using side projects to track expenses, calculate profits, etc.
 I tried to use some of these services, set up my own data sheets, but alas - did not get the experience I wanted.
 
 This is a simple pet project, where my goal it to:
