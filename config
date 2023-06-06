@@ -1,5 +1,5 @@
 {
-	"sde_path": "sde",
+	"sde_path": "/sde",
 	"sde_db_path": "sde.db",
 	"sde_to_sql_files": [
 		"planetSchematics.yaml"

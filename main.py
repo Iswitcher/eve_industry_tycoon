@@ -1,6 +1,4 @@
-import datetime
 import json
-import sqlite3
 import requests
 import zipfile
 import io
@@ -33,90 +31,72 @@ class Main:
 
     endpoints = {}
     config = {}
-
-
-    # get current time
-    def time(self):
-        time = datetime.datetime.now()
-        time = time.strftime('%Y-%m-%d %H:%M:%S')
-        return time
-    
-
-    # compose log message
-    def log(self, message, status=''):
-        if status == 'w':
-            p_status = '[WARNING]'
-        elif status == 'e':
-            p_status = '[ERROR]'
-        else: p_status = ''
-        print(f'[{self.time()}]{p_status} {message}')
-    
     
     # load config file
     def load_config(self):
-        self.log(f'Config loading')
+        log.info(f'Config loading')
         try: 
             file = open(self.file_config)
             self.config = json.load(file, object_hook=customJsonDecoder)
-            self.log(f'Config loaded')
+            log.info(f'Config loaded')
         except Exception as e:
-            self.log(f'Error while loading main config: {e}', 'e')
+            log.critical(f'Error while loading main config: {e}')
     
     
     # load URL endpoints file
     def load_endpoints(self):
-        self.log('ESI endpoints loading')
+        log.info('ESI endpoints loading')
         try: 
             file = open(self.file_endpoints)
             self.endpoints = json.load(file)
-            self.log('ESI endpoints loaded')
+            log.info('ESI endpoints loaded')
         except Exception as e:
-            self.log(f'Error while loading ESI endpoints: {e}', 'e')
+            log.critical(f'Error while loading ESI endpoints: {e}')
     
     
     # get the old sde checksum
     def load_old_checksum(self):
-        self.log('Loading old SDE checksum')
-        try:
+        log.info('Loading old SDE checksum')
+        try:   
             file = open(self.file_checksum)
             self.checksum = file.read()
-            self.log(f'SDE old checksum is: {self.checksum}')
+            log.info(f'SDE old checksum is: {self.checksum}')
+            file.close()
             return self.checksum
         except Exception as e:
-            self.log(f'SDE checksum NOT found/loaded: {e}', 'w')
+            log.critical(f'SDE checksum NOT found/loaded: {e}')
             return ''            
-    
+
     
     # get the new sde checksum
     def load_new_checksum(self):
         try:
-            sde_checksum_url = self.endpoints['sde_checksum_url']
-            self.log(f'Fetching SDE checksum at: {sde_checksum_url}')
-            response = requests.get(sde_checksum_url, allow_redirects=True)
-            if response.status_code == 200:
-                self.log(f'SDE new checksum is: {response.text}')
-                return response.text
-            else:
-                self.log(f'HTTP response code not 200: {response.status_code}', 'w')
-                return ''
+            # log.info('Fetching SDE checksum')
+            checksum_url = self.endpoints['sde_checksum_url']
+            checksum = web.get_sde_checksum(checksum_url)
+            log.info(f'SDE new checksum is: {checksum}')
+            return checksum
         except Exception as e:
-            self.log(f'Failed to get new SDE checksum: {e}')
+            log.critical(f'Failed to get new SDE checksum: {e}')
         
             
     # is checksum changed?   
-    def validate_sde_hash(self):        
-        old_checksum = self.load_old_checksum()
-        new_checksum = self.load_new_checksum()
+    def validate_sde_hash(self):
+        try:        
+            old_checksum = self.load_old_checksum()
+            new_checksum = self.load_new_checksum()
         
-        if old_checksum != new_checksum:
-            self.log(f'SDE checksum NOT equal', 'w')
-            self.update_checksum(new_checksum)
-            self.download_sde_zip()
-        elif os.path.exists(self.config.sde_path) == False:
-            self.log(f'SDE folder not found! Double checking.')
-            self.download_sde_zip()
-        else: 
-            self.log(f'SDE checksum matched')    
+            if old_checksum != new_checksum:
+                log.warning(f'SDE checksum NOT equal')
+                self.update_checksum(new_checksum)
+                self.download_sde_zip()
+            elif os.path.exists(self.config.sde_path) == False:
+                log.warning(f'SDE folder not found! Double checking.')
+                self.download_sde_zip()
+            else: 
+                log.info(f'SDE checksum matched')  
+        except Exception as e:
+            log.critical(f'Failed to match checksum: {e}')      
        
             
     # save new sde checksum
@@ -124,36 +104,48 @@ class Main:
         try:
             file = open(self.file_checksum, "w")
             file.write(new_checksum)
-            self.log(f'Checksum updated: {new_checksum}')
+            log.info(f'Checksum updated: {new_checksum}')
         except Exception as e:
-            self.log(f'Failed to write new SDE checksum: {e}')
+            log.critical(f'Failed to write new SDE checksum: {e}')
   
 
     # download sde zip
     def download_sde_zip(self):
-        url = self.endpoints['sde_download_url']
-        self.log('Fetching zip')
-        response = requests.get(url, stream=True)
-        
-        if response.status_code == 200:
-            zip = io.BytesIO(response.content)
-            if os.path.exists(self.config.sde_path):
-                self.log(f'Clearing old SDE records')
-                os.remove(self.config.sde_path)
-            self.extract_zip(zip)
-        else:
-            self.log(f'Failed to download zip: HTTP {response.status_code}', 'e')
+        try:
+            url = self.endpoints['sde_download_url']
+            log.info('Fetching zip')
+            response = requests.get(url, stream=True)
+            
+            if response.status_code == 200:
+                zip = io.BytesIO(response.content)
+                self.clean_sde(self.config.sde_path)
+                self.extract_zip(zip)
+            else:
+                log.critical(f'Failed to download zip: HTTP {response.status_code}')
+        except Exception as e:
+            log.critical(f'Failed to write new SDE checksum: {e}')    
+    
+    
+    # clean old SDE folder if needed
+    def clean_sde(self, folder):
+        try:
+            if os.path.exists(folder):
+                log.info(f'Clearing old SDE records')
+                os.remove(folder)
+                return
+        except Exception as e:
+            log.critical(f'Failed to purge old SDE folder: {e}')  
         
     
     # exctract zip to app folder    
     def extract_zip(self, data):
         try:
-            self.log('Extracting zip')
+            log.info('Extracting zip')
             with zipfile.ZipFile(data, 'r') as zip:
                 zip.extractall('')
-                self.log('ZIP Extracted successfully')
+                log.info('ZIP Extracted successfully')
         except Exception as e:
-            self.log(f'Error while extracting: {e}', 'e')
+            log.critical(f'Error while extracting: {e}')
 
     
     # take yaml and paste its data into sql    
@@ -167,7 +159,8 @@ class Main:
             table = self.yaml_get_table_name(path)
             filedata = self.get_yaml_data(path)
             self.yaml_2_sql(table, filedata)
-        db.disconnect(sde_db_path)
+        db.disconnect(conn)
+        log.info(f'DB Connection closed')
                     
 
     # match downloaded files vs config
@@ -178,7 +171,7 @@ class Main:
             for to_sql in self.config.sde_to_sql_files:
                 if file.endswith(to_sql):
                     output.append(file)
-                    self.log(f'Adding {to_sql} to parse queue')
+                    log.info(f'Adding {to_sql} to parse queue')
         return output    
 
     

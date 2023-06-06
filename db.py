@@ -18,7 +18,7 @@ class db:
     
     # Disconnect        
     def disconnect(conn):
-        conn.close        
+        conn.close()        
     
     
     # If no DB file found - create a new one
