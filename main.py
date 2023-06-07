@@ -113,15 +113,9 @@ class Main:
     def download_sde_zip(self):
         try:
             url = self.endpoints['sde_download_url']
-            log.info('Fetching zip')
-            response = requests.get(url, stream=True)
-            
-            if response.status_code == 200:
-                zip = io.BytesIO(response.content)
-                self.clean_sde(self.config.sde_path)
-                self.extract_zip(zip)
-            else:
-                log.critical(f'Failed to download zip: HTTP {response.status_code}')
+            zip = web.get_sde_zip(url)
+            self.clean_sde(self.config.sde_path)
+            self.extract_zip(zip)
         except Exception as e:
             log.critical(f'Failed to write new SDE checksum: {e}')    
     
