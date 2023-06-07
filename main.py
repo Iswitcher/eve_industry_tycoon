@@ -1,18 +1,15 @@
 import json
-import requests
 import zipfile
-import io
 import os
 import glob
 import yaml
 import re
 
-from web import web
 from db import db
+from web import web
 from log import log
 
 from collections import namedtuple
-from json import JSONEncoder
 
 '''
 TODO:
@@ -140,21 +137,24 @@ class Main:
                 log.info('ZIP Extracted successfully')
         except Exception as e:
             log.critical(f'Error while extracting: {e}')
-
-    
+            
+            
     # take yaml and paste its data into sql    
     def sde_convert(self):
-        sde_db_path = self.config.sde_db_path
-        conn = db.connect(sde_db_path)
-        
-        file_list = self.filter_yaml_file_list()
-        for path in file_list:
-            log.info(f'Extracting {path}')
-            table = self.yaml_get_table_name(path)
-            filedata = self.get_yaml_data(path)
-            self.yaml_2_sql(table, filedata)
-        db.disconnect(conn)
-        log.info(f'DB Connection closed')
+        try:
+            sde_db_path = self.config.sde_db_path
+            conn = db.connect(sde_db_path)
+            
+            file_list = self.filter_yaml_file_list()
+            for path in file_list:
+                log.info(f'Extracting {path}')
+                table = self.yaml_get_table_name(path)
+                yaml = self.get_yaml_data(path)
+                db.yaml_2_sql(conn, table, yaml)
+            db.disconnect(conn)
+            log.info(f'DB Connection closed')
+        except Exception as e:
+            log.critical(f'Error while extracting: {e}')    
                     
 
     # match downloaded files vs config
@@ -178,21 +178,12 @@ class Main:
     # get yaml data from file
     def get_yaml_data(self, path):
         try:
-            with open(path, 'r') as file:
+            with open(path, 'r', encoding='utf8') as file:
                 yaml_object = yaml.safe_load(file)
-                return file
+                return yaml_object
         except Exception as e:
-            log.critical(f'Failed to get yaml data (file {path}): {e}') 
-     
-    
-    # Extract yaml into sql table
-    def yaml_2_sql(self, table, data):
-        log.critical('DUMMY')
-    #     with open('your_file.yaml', 'r') as file:
-    # # Load the YAML contents into a Python object
-    # yaml_object = yaml.safe_load(file)
-    
-        
+            log.critical(f'Failed to get yaml data (file {path}): {e}')       
+
 
     # main execution
     def run(self):
