@@ -33,6 +33,8 @@ class db:
     # Extract yaml into sql table
     def yaml_2_sql(conn, table, data):
         db.check_table(conn, table)
+        for obj in data:
+            db.check_table_columns(conn, obj, data[obj])
     
     
     # check if table exists
@@ -62,4 +64,19 @@ class db:
                         )""")
         log.info(f'Table {name} created')
         return
+    
+    
+    # check if all columns exists
+    def check_table_columns(conn, obj, data):
+        log.info('DUMMY')
+        
+    
+    # check if old record exists
+    def check_old_row(conn):
+        log.info('DUMMY')
+        
+    
+    # add new record
+    def add_row(conn):
+        log.info('DUMMY')
 

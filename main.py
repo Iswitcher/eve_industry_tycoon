@@ -1,9 +1,11 @@
 import json
 import zipfile
 import os
+import shutil
 import glob
 import yaml
 import re
+import traceback
 
 from db import db
 from web import web
@@ -37,7 +39,8 @@ class Main:
             self.config = json.load(file, object_hook=customJsonDecoder)
             log.info(f'Config loaded')
         except Exception as e:
-            log.critical(f'Error while loading main config: {e}')
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            log.critical(f'ERROR in {method_name}: {e}')
     
     
     # load URL endpoints file
@@ -48,7 +51,8 @@ class Main:
             self.endpoints = json.load(file)
             log.info('ESI endpoints loaded')
         except Exception as e:
-            log.critical(f'Error while loading ESI endpoints: {e}')
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            log.critical(f'ERROR in {method_name}: {e}')
     
     
     # get the old sde checksum
@@ -61,7 +65,8 @@ class Main:
             file.close()
             return self.checksum
         except Exception as e:
-            log.critical(f'SDE checksum NOT found/loaded: {e}')
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            log.critical(f'ERROR in {method_name}: {e}')
             return ''            
 
     
@@ -74,7 +79,8 @@ class Main:
             log.info(f'SDE new checksum is: {checksum}')
             return checksum
         except Exception as e:
-            log.critical(f'Failed to get new SDE checksum: {e}')
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            log.critical(f'ERROR in {method_name}: {e}')
         
             
     # is checksum changed?   
@@ -93,7 +99,8 @@ class Main:
             else: 
                 log.info(f'SDE checksum matched')  
         except Exception as e:
-            log.critical(f'Failed to match checksum: {e}')      
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            log.critical(f'ERROR in {method_name}: {e}')      
        
             
     # save new sde checksum
@@ -103,7 +110,8 @@ class Main:
             file.write(new_checksum)
             log.info(f'Checksum updated: {new_checksum}')
         except Exception as e:
-            log.critical(f'Failed to write new SDE checksum: {e}')
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            log.critical(f'ERROR in {method_name}: {e}')
   
 
     # download sde zip
@@ -114,7 +122,8 @@ class Main:
             self.clean_sde(self.config.sde_path)
             self.extract_zip(zip)
         except Exception as e:
-            log.critical(f'Failed to write new SDE checksum: {e}')    
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            log.critical(f'ERROR in {method_name}: {e}')   
     
     
     # clean old SDE folder if needed
@@ -122,10 +131,11 @@ class Main:
         try:
             if os.path.exists(folder):
                 log.info(f'Clearing old SDE records')
-                os.remove(folder)
+                shutil.rmtree(folder)
                 return
         except Exception as e:
-            log.critical(f'Failed to purge old SDE folder: {e}')  
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            log.critical(f'ERROR in {method_name}: {e}')  
         
     
     # exctract zip to app folder    
@@ -136,7 +146,8 @@ class Main:
                 zip.extractall('')
                 log.info('ZIP Extracted successfully')
         except Exception as e:
-            log.critical(f'Error while extracting: {e}')
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            log.critical(f'ERROR in {method_name}: {e}')
             
             
     # take yaml and paste its data into sql    
@@ -154,7 +165,8 @@ class Main:
             db.disconnect(conn)
             log.info(f'DB Connection closed')
         except Exception as e:
-            log.critical(f'Error while extracting: {e}')    
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            log.critical(f'ERROR in {method_name}: {e}')   
                     
 
     # match downloaded files vs config
@@ -182,7 +194,8 @@ class Main:
                 yaml_object = yaml.safe_load(file)
                 return yaml_object
         except Exception as e:
-            log.critical(f'Failed to get yaml data (file {path}): {e}')       
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            log.critical(f'ERROR in {method_name}: {e}')       
 
 
     # main execution
