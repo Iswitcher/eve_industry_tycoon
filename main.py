@@ -154,20 +154,29 @@ class Main:
     def sde_convert(self):
         try:
             sde_db_path = self.config.sde_db_path
-            conn = db.connect(sde_db_path)
-            
             file_list = self.filter_yaml_file_list()
-            for path in file_list:
-                log.info(f'Extracting {path}')
-                table = self.yaml_get_table_name(path)
-                yaml = self.get_yaml_data(path)
-                db.yaml_2_sql(conn, table, yaml)
-            db.disconnect(conn)
-            log.info(f'DB Connection closed')
+            for yaml in file_list:
+                log.info(f'Extracting {yaml}')
+                data = self.get_yaml_data(yaml)
+                table = self.get_table_name(yaml)                
+                conn = db.connect(sde_db_path)
+                db.yaml_to_sql(conn, table, data)
+                db.disconnect(conn)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             log.critical(f'ERROR in {method_name}: {e}')   
-                    
+    
+    
+    # get table name from yaml
+    def get_table_name(self, filepath):
+        try:
+            regex = '\w+(?=.yaml)'
+            table = re.search(regex, filepath).group()
+            return table
+        except Exception as e:
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            log.critical(f'ERROR in {method_name}: {e}')                
+
 
     # match downloaded files vs config
     def filter_yaml_file_list(self):
@@ -179,12 +188,6 @@ class Main:
                     output.append(file)
                     log.info(f'Adding {to_sql} to parse queue')
         return output    
-
-    
-    # get sql table name from filename    
-    def yaml_get_table_name(self, path):
-        regex = '\w+(?=.yaml)'
-        return re.search(regex, path).group()
     
     
     # get yaml data from file
