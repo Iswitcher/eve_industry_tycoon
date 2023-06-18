@@ -156,6 +156,7 @@ class Main:
             sde_db_path = self.config.sde_db_path
             file_list = self.filter_yaml_file_list()
             for yaml in file_list:
+                log.info(f'Processing file {1+file_list.index(yaml)} from {len(file_list)}')
                 log.info(f'Extracting {yaml}')
                 data = self.get_yaml_data(yaml)
                 table = self.get_table_name(yaml)                
