@@ -126,7 +126,7 @@ class db:
         log.info('TODO: close old record')
         
         
-    # adds old record
+    # adds new record
     def add_new_record(conn, table, id, data, h):
         try:
             db.check_columns(conn, table, data)
@@ -193,7 +193,7 @@ class db:
         else: 
             return None
     
-    
+    # returns insert query string and tuple with standart and table-specific values
     def get_insert_query(table, id, data, h): 
         columns = []
         values = []
