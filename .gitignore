@@ -1,2 +1,5 @@
 # all app temp files (checksum and others)
 temp/
+
+# ignore pycache
+/__pycache__
