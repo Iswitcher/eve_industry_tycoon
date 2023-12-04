@@ -13,7 +13,6 @@ class gui_main:
         window = tk.Tk()
         window.title(self.title)
         window.geometry(f"{self.width}x{self.height}")
-        
         self.create_menubar(window)
         
         window.mainloop()
