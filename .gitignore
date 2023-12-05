@@ -3,3 +3,7 @@ temp/
 
 # ignore pycache
 __pycache__
+
+# ignore sde
+sde/
+sde_checksum.txt
