@@ -1,11 +1,10 @@
 from web.sde import sde
+from web.esi import esi
 
-class logic:        
-    
-    def __init__(self, esi_endpoints):
-        self.esi_endpoints = esi_endpoints
-      
+
+class logic:          
     
     # try start updating SDE zips    
     def sde_update(self):
-        sde.sde_update(self)
+        sde_loader = sde()
+        sde_loader.sde_update()

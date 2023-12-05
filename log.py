@@ -1,7 +1,7 @@
 import logging
 
 class log:
-    def __init__(self):
+    def __init__(self, text):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
         
@@ -10,6 +10,7 @@ class log:
         formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
+        self.text = text
     
     
     def info(self, text):

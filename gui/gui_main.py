@@ -9,16 +9,17 @@ class gui_main:
         self.width = 800
 
 
-    def run_window(self):        
+    def run_window(self):
+        lg = logic()      
         window = tk.Tk()
         window.title(self.title)
         window.geometry(f"{self.width}x{self.height}")
-        self.create_menubar(window)
+        self.create_menubar(window, lg)
         
         window.mainloop()
                 
 
-    def create_menubar(self, window):
+    def create_menubar(self, window, lg):
         menubar = tk.Menu(window)
         
         # add main menu
@@ -28,7 +29,7 @@ class gui_main:
         
         # add sync menu
         sync_menu = tk.Menu(menubar, tearoff=0)
-        sync_menu.add_command(label="Update SDE", command=lambda: logic.sde_update(self))
+        sync_menu.add_command(label="Update SDE", command=lambda: lg.sde_update())
         menubar.add_cascade(label="Sync", menu=sync_menu)
         
         # add exit

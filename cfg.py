@@ -19,3 +19,4 @@ class cfg:
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             log.critical(f'ERROR in {method_name}: {e}')
+            return {}
