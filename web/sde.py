@@ -28,7 +28,7 @@ class sde:
             new_hash = self.sde_hash_new_get()
             if(self.is_sde_hash_obsolete(old_hash, new_hash)):
                 return
-            # self.sde_download_zip()
+            self.sde_download_zip()
             self.sde_hash_new_save(new_hash)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
