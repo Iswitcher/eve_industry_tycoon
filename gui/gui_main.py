@@ -1,5 +1,12 @@
+import threading
+from tkinter import messagebox
+
 import tkinter as tk
+window = tk.Tk()
+
 from logic import logic
+lg = logic() 
+
 
 class gui_main:
     
@@ -10,16 +17,15 @@ class gui_main:
 
 
     def run_window(self):
-        lg = logic()      
-        window = tk.Tk()
+             
         window.title(self.title)
         window.geometry(f"{self.width}x{self.height}")
-        self.create_menubar(window, lg)
+        self.create_menubar(window)
         
         window.mainloop()
                 
 
-    def create_menubar(self, window, lg):
+    def create_menubar(self, window):
         menubar = tk.Menu(window)
         
         # add main menu
@@ -29,17 +35,32 @@ class gui_main:
         
         # add sync menu
         sync_menu = tk.Menu(menubar, tearoff=0)
-        sync_menu.add_command(label="Update SDE", command=lambda: lg.sde_update())
+        sync_menu.add_command(label="Update SDE", command=lambda: self.menu_update_sde())
+        sync_menu.add_command(label="Import Images", command=lambda: self.menu_import_images())
         menubar.add_cascade(label="Sync", menu=sync_menu)
         
         # add exit
-        menubar.add_command(label="Exit", command=window.quit)
+        menubar.add_command(label="Exit", command=lambda: self.menu_exit())
         
         window.config(menu=menubar)
         return menubar
-
+    
+    
+    # exit?
+    def menu_exit(self):
+        result = messagebox.askyesno("Exiting", "Closing, eh?")
+        if result:
+            window.destroy()
+        else:
+            return
+    
+    
+    # Check and download fresh SDE files
+    def menu_update_sde(self):
+        lg.sde_update()
+        messagebox.showinfo("Update Complete", "SDE Update Finished!")
         
-
-        
-
-  
+    
+    # download graphics
+    def menu_import_images(self):
+        messagebox.showinfo("Move along!", "Not yet implemented")
