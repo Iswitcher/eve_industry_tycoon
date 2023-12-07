@@ -35,8 +35,9 @@ class gui_main:
         
         # add sync menu
         sync_menu = tk.Menu(menubar, tearoff=0)
-        sync_menu.add_command(label="Update SDE", command=lambda: self.menu_update_sde())
         sync_menu.add_command(label="Import Images", command=lambda: self.menu_import_images())
+        sync_menu.add_command(label="Update SDE", command=lambda: self.menu_update_sde())
+        sync_menu.add_command(label="SDE 2 DB", command=lambda: self.menu_sde_2_db())
         menubar.add_cascade(label="Sync", menu=sync_menu)
         
         # add exit
@@ -53,6 +54,11 @@ class gui_main:
             window.destroy()
         else:
             return
+
+
+    # download graphics
+    def menu_import_images(self):
+        messagebox.showinfo("Move along!", "Not yet implemented")
     
     
     # Check and download fresh SDE files
@@ -61,6 +67,7 @@ class gui_main:
         messagebox.showinfo("Update Complete", "SDE Update Finished!")
         
     
-    # download graphics
-    def menu_import_images(self):
-        messagebox.showinfo("Move along!", "Not yet implemented")
+    # parse local SDE yaml 2 sqlite
+    def menu_sde_2_db(self):
+        lg.sde_2_db()
+        messagebox.showinfo("Parsing Complete", "YAML files imported")
