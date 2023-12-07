@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import hashlib
 import traceback
 
 from log import log
@@ -69,6 +70,7 @@ class db_utils:
             q = (f"""
                 CREATE TABLE {table}
                 (
+                    hash        TEXT PRIMARY KEY,
                     checksum    TEXT,
                     start_date  DATE,
                     end_date    DATE
@@ -120,3 +122,67 @@ class db_utils:
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             lg.critical(f'ERROR in {method_name}: {e}')
+            
+            
+    # close old record and add new one
+    # does nothing if the record is unchanged
+    def record_add_or_replace(self, table, id_name, id, columns, values):
+        try:
+            hash = self.get_record_hash_md5(values)
+            old_hash = self.get_old_record_hash(table, id_name, id)
+            if hash == old_hash:
+                return
+            if old_hash != None:
+                self.record_close(table, id_name, id)
+            blah = 123
+        except Exception as e:
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            lg.critical(f'ERROR in {method_name}: {e}')
+        
+    
+    # pile all attributes and make a hash of it
+    def get_record_hash_md5(self, values):
+        try:
+            md5 = hashlib.md5()
+            md5.update(str(values).encode('utf-8'))
+            return md5.hexdigest()
+        except Exception as e:
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            lg.critical(f'ERROR in {method_name}: {e}')
+    
+    
+    # get old record by id
+    def get_old_record_hash(self, table, key, value):
+        try:
+            _cursor = self.db_conn.cursor()
+            q = f"""
+                SELECT hash
+                FROM {table}
+                WHERE {key} = {value}
+                AND end_date > DATE('now')
+                """
+            _cursor.execute(q)
+            row = _cursor.fetchone()
+            if row is not None:
+                return row[0]
+            return None
+        except Exception as e:
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            lg.critical(f'ERROR in {method_name}: {e}')
+        
+        
+    # set end date for old record
+    def record_close(self, table, key, value):
+        try:
+            _cursor = self.db_conn.cursor()
+            q = f"""
+                UPDATE {table}
+                SET end_date = DATE('now')
+                WHERE {key} = {value}
+                AND end_date > DATE('now')
+                """
+            _cursor.execute(q)
+        except Exception as e:
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            lg.critical(f'ERROR in {method_name}: {e}')
+    
