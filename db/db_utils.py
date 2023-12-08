@@ -71,7 +71,7 @@ class db_utils:
             q = (f"""
                 CREATE TABLE {table}
                 (
-                    hash        TEXT PRIMARY KEY,
+                    hash        TEXT,
                     start_date  DATE,
                     end_date    DATE
                 )""")
@@ -177,9 +177,9 @@ class db_utils:
             _cursor = self.db_conn.cursor()
             q = f"""
                 UPDATE {table}
-                SET end_date = DATE('now')
+                SET end_date = DATETIME('now')
                 WHERE {key} = {value}
-                AND end_date > DATE('now')
+                AND end_date > DATETIME('now')
                 """
             _cursor.execute(q)
             self.db_conn.commit()
@@ -198,7 +198,7 @@ class db_utils:
             
             # add dates
             columns.append("start_date")
-            values.append(datetime.now())
+            values.append(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
             columns.append("end_date")
             values.append(datetime(9999, 12, 31, 23, 59, 59, 0))
             

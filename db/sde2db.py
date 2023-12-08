@@ -73,6 +73,8 @@ class sde2db:
                 row = yaml_data[obj_id]
                 columns = []
                 values = []
+                if obj_id == 802:
+                    blah = 123
                 for col in config.columns:
                     columns.append(col.col)
                     value = self.yaml_value_extract(obj_id, row, col.path)
@@ -96,7 +98,7 @@ class sde2db:
                     continue
                 result = result.get(node)
             return result
-        except (KeyError, TypeError):
+        except Exception as e:
             return None
     
 
