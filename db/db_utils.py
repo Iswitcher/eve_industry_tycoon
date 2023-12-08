@@ -2,6 +2,7 @@ import os
 import sqlite3
 import hashlib
 import traceback
+from datetime import datetime
 
 from log import log
 lg = log(None)
@@ -71,7 +72,6 @@ class db_utils:
                 CREATE TABLE {table}
                 (
                     hash        TEXT PRIMARY KEY,
-                    checksum    TEXT,
                     start_date  DATE,
                     end_date    DATE
                 )""")
@@ -134,7 +134,7 @@ class db_utils:
                 return
             if old_hash != None:
                 self.record_close(table, id_name, id)
-            blah = 123
+            self.record_add(table, hash, columns, values)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             lg.critical(f'ERROR in {method_name}: {e}')
@@ -182,7 +182,43 @@ class db_utils:
                 AND end_date > DATE('now')
                 """
             _cursor.execute(q)
+            self.db_conn.commit()
+            _cursor.close()
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             lg.critical(f'ERROR in {method_name}: {e}')
+            
+            
+    # add new record
+    def record_add(self, table, hash, columns, values):
+        try:
+            # add hash
+            columns.append("hash")
+            values.append(hash)
+            
+            # add dates
+            columns.append("start_date")
+            values.append(datetime.now())
+            columns.append("end_date")
+            values.append(datetime(9999, 12, 31, 23, 59, 59, 0))
+            
+            q_obj = self.get_insert_query(table, columns, values)
+            _cursor = self.db_conn.cursor()
+            _cursor.execute(q_obj['query'], q_obj['values'])
+            self.db_conn.commit()
+            _cursor.close()
+            
+            
+        except Exception as e:
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            lg.critical(f'ERROR in {method_name}: {e}')
+        
+    
+    def get_insert_query(self, table, columns, values):
+        # str_values = [str(value) for value in values]
+        query = f"""
+            INSERT INTO {table} ({", ".join(columns)})
+            VALUES ({", ".join(["?" for _ in values])})
+        """
+        return {'query': query, 'values': tuple(values)}
     

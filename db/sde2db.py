@@ -9,8 +9,7 @@ lg = log(None)
 class sde2db:
     
     def __init__(self, checksum):
-        self.checksum = checksum
-        # self.sde_db_path = 'sde.db'
+        # self.checksum = checksum
         self.db = db_utils('sde.db', None)
         
         self.sde_categories = 'sde/fsd/categoryIDs.yaml' 
@@ -58,8 +57,8 @@ class sde2db:
         try:
             table = 'category_ids'
             id_name = 'category_id'
-            columns = ['category_id', 'en']
-            types = ['NUMBER', 'TEXT']
+            columns = ['category_id', 'en', 'published']
+            types = ['NUMBER', 'TEXT', 'NUMBER']
             
             self.sde_table_check(table, columns, types)
             
@@ -68,7 +67,8 @@ class sde2db:
                 values = []
                 values.append(row)
                 values.append(yaml_data[row]['name']['en'])
-                self.sde_table_try_insert(table, id_name, row, columns, values)
+                values.append(yaml_data[row]['published'])
+                self.sde_table_try_insert(table, id_name, row, list(columns), values)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             lg.critical(f'ERROR in {method_name}: {e}')
