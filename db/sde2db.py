@@ -19,8 +19,9 @@ class sde2db:
     def sde_convert_all(self):
         self.db.db_connect()
         
-        # self.sde_covert_categoryids()
+        self.sde_covert_category_ids()
         self.sde_covert_market_groups()
+        # self.sde_covert_inv_flags() # NON FUNCTIONAL
         # TODO other types
         
         self.db.db_disconnect()
@@ -73,8 +74,6 @@ class sde2db:
                 row = yaml_data[obj_id]
                 columns = []
                 values = []
-                if obj_id == 802:
-                    blah = 123
                 for col in config.columns:
                     columns.append(col.col)
                     value = self.yaml_value_extract(obj_id, row, col.path)
@@ -102,18 +101,25 @@ class sde2db:
             return None
     
 
-    # convert marketGroups.yaml
-    def sde_covert_market_groups(self):
-        cfg_path = 'config/sde2db_mapping/categoryIDs.json'
+    # convert categoryIDs.yaml
+    def sde_covert_category_ids(self):
+        cfg_path = 'config/sde2db_mapping/fsd/categoryIDs.json'
         config = self.cfg.get_config_json(cfg_path)
         self.sde_extract_and_convert(config)
     
     
     # convert marketGroups.yaml
     def sde_covert_market_groups(self):
-        cfg_path = 'config/sde2db_mapping/marketGroups.json'
+        cfg_path = 'config/sde2db_mapping/fsd/marketGroups.json'
         config = self.cfg.get_config_json(cfg_path)
         self.sde_extract_and_convert(config)
+        
+        
+    # convert invFlags.yaml
+    # def sde_covert_inv_flags(self):
+    #     cfg_path = 'config/sde2db_mapping/bsd/invFlags.json'
+    #     config = self.cfg.get_config_json(cfg_path)
+    #     self.sde_extract_and_convert(config)
 
 
 
