@@ -3,7 +3,6 @@ from web.sde import sde
 
 from db.sde2db import sde2db
 
-
 class logic:    
     
     # try start updating SDE zips    

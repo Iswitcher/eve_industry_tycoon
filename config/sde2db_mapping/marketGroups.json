@@ -1,0 +1,13 @@
+{
+    "yaml_path" : "sde/fsd/marketGroups.yaml",
+    "db_table" : "market_groups",
+    "pk_name" : "market_group_id",
+    "columns" : [
+        {"col": "market_group_id", "type": "NUMBER", "path": "root"},
+        {"col": "icon_id", "type": "NUMBER", "path": "root/iconID"},
+        {"col": "name_en", "type": "TEXT", "path": "root/nameID/en"},
+        {"col": "desc_en", "type": "TEXT", "path": "root/descriptionID/en"},
+        {"col": "hasTypes", "type": "NUMBER", "path": "root/hasTypes"},
+        {"col": "parent_group_id", "type": "NUMBER", "path": "root/parentGroupID"}
+    ]
+}
