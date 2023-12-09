@@ -4,10 +4,11 @@ import traceback
 
 from lib.logger import logger
 
-class web:
+class http:
     
-    def __init__(self):
+    def __init__(self, url=None):
         self.log = logger()
+        self.url = url
         
     
     # http get and return text

@@ -5,7 +5,7 @@ import traceback
 
 from lib.logger import logger
 from lib.cfg_reader import cfg_reader
-from lib.web.web import web
+from lib.web.http import http
 
 
 class sde_loader:
@@ -13,12 +13,13 @@ class sde_loader:
     def __init__(self):
         self.log = logger()
         self.cfg = cfg_reader()
+        self.http = http()
         self.sde_config_path = 'config/sde_import.json'
         self.sde_endpoints = {}
 
-        self.sde_hash = 'sde_checksum.txt'
-        self.sde_folder = 'sde/'
-        self.sde_zip_path = 'sde/sde.zip'
+        self.sde_hash = 'resources/sde_checksum.txt'
+        self.sde_folder = 'resources/sde/'
+        self.sde_zip_path = 'resources/sde/sde.zip'
         
     
     # main method. Checks and downloads new SDE archive
@@ -49,8 +50,6 @@ class sde_loader:
             file.close()
             return checksum
         except Exception as e:
-            method_name = traceback.extract_stack(None, 2)[0][2]
-            self.log.critical(f'ERROR in {method_name}: {e}')
             return ''
     
     
@@ -58,7 +57,7 @@ class sde_loader:
     def sde_hash_new_get(self):
         try:
             url = self.sde_endpoints.sde_checksum_url
-            checksum = web.http_get(url)
+            checksum = self.http.http_get(url)
             return checksum
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
@@ -92,11 +91,11 @@ class sde_loader:
     def sde_download_zip(self):
         try:
             url = self.sde_endpoints.sde_download_url
-            data = web.http_get_bytes(url)
+            data = self.http.http_get_bytes(url)
             self.sde_dir_check()
             self.sde_dir_clean()
             with zipfile.ZipFile(data, 'r') as zip:
-                zip.extractall('')
+                zip.extractall('resources/')
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')

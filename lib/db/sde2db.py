@@ -14,7 +14,7 @@ class sde2db:
     
     def __init__(self):
         self.log = logger(None)
-        self.db = db_utils('sde.db', None)
+        self.db = db_utils('resources/sde.db', None)
         self.cfg = cfg_reader()
         self.cfg_file = 'config/sde_import.json'
     
