@@ -12,7 +12,7 @@ lg = log(None)
 class sde:
     
     def __init__(self):
-        self.sde_config_path = 'config/sde_endpoints.json'
+        self.sde_config_path = 'config/sde_import.json'
         self.sde_endpoints = {}
 
         self.sde_hash = 'sde_checksum.txt'

@@ -1,0 +1,13 @@
+{
+    "yaml_path" : "sde/fsd/races.yaml",
+    "db_table" : "races",
+    "pk_name" : "race_id",
+    "columns" : [
+        {"col": "race_id", "type": "NUMBER", "path": "root"},
+        {"col": "icon_id", "type": "NUMBER", "path": "iconID"},
+        {"col": "name_en", "type": "TEXT", "path": "root/nameID/en"},
+        {"col": "desc_en", "type": "TEXT", "path": "root/descriptionID/en"},
+        {"col": "shiptype_id", "type": "NUMBER", "path": "shipTypeID"},
+        {"col": "skill_id", "type": "NUMBER", "path": "skills"}
+    ]
+}

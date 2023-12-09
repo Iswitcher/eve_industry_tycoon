@@ -1,7 +1,8 @@
 from web.sde import sde
 # from web.esi import esi
 
-from db.sde2db import sde2db
+# from db.sde2db import sde2db
+import db.sde2db
 
 class logic:    
     
@@ -16,5 +17,5 @@ class logic:
         sde_loader = sde()
         checksum = sde_loader.sde_hash_old_load()
         
-        conv = sde2db(checksum)
+        conv = db.sde2db()
         conv.sde_convert_all()

@@ -1,0 +1,11 @@
+{
+    "yaml_path" : "sde/bsd/invFlags.yaml",
+    "db_table" : "inv_flags",
+    "pk_name" : "inv_flag_id",
+    "columns" : [
+        {"col": "inv_flag_id", "type": "NUMBER", "path": "root/flagID"},
+        {"col": "flag_name", "type": "TEXT", "path": "root/flagName"},
+        {"col": "flag_text", "type": "TEXT", "path": "root/flagText"},
+        {"col": "order_id", "type": "NUMBER", "path": "root/orderID"}
+    ]
+}

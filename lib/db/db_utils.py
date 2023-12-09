@@ -94,7 +94,7 @@ class db_utils:
                 if self.cnt_col_occur(att, column_names) > 0:
                     continue
                 type = types[i]
-                self.add_table_column(table, att, type)
+                self.table_column_add(table, att, type)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             lg.critical(f'ERROR in {method_name}: {e}')
@@ -110,7 +110,7 @@ class db_utils:
     
     
     # adds new table column of specified type
-    def add_table_column(self, table, att_name, att_type):
+    def table_column_add(self, table, att_name, att_type):
         try:
             _cursor = self.db_conn.cursor()
             alter_query = f"""

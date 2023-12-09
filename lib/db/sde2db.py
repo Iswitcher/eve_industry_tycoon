@@ -1,6 +1,8 @@
 import yaml
 import os
 import glob
+import importlib
+import re
 
 from cfg import cfg
 from db.db_utils import db_utils
@@ -10,37 +12,65 @@ from log import log
 
 class sde2db:
     
-    def __init__(self, checksum):
-        # self.checksum = checksum
+    def __init__(self):
         self.lg = log(None)
         self.db = db_utils('sde.db', None)
         self.cfg = cfg()
+        self.cfg_file = 'config/sde_import.json'
     
     
     # main conversion method
     def sde_convert_all(self):
+        try:
+            cfg_file = self.cfg.get_config_json(self.cfg_file)
+            yamls = cfg_file.yaml_to_convert
+            
+            for path in yamls:
+                # yaml_file = self.sde_yaml_read(path)
+                module = self.sde_module_import(path)
+                blah = 132
+        except Exception as e:
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            self.lg.critical(f'ERROR in {method_name}: {e}')
+    
+
+    def sde_module_import(self, path):
+        try:
+            pattern = re.compile(r'\w+(?=.yaml)')
+            name = re.search(pattern, path).group()
+            module_path = 'sde2db.fsd.' + name
+            module = importlib.import_module(module_path)
+            cls = getattr(module, 'name')
+            return module
+        except Exception as e:
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            self.lg.critical(f'ERROR in {method_name}: {e}')
+    
+    
+    def sde_convert(self, yaml):
         self.db.db_connect()
-        
-        base_path = 'config/sde2db_mapping/fsd/'
-        files = glob.glob(os.path.join(base_path, '*'))
-        files = [os.path.normpath(file) for file in files]
-        for file in files:
-            config = self.cfg.get_config_json(file)
-            self.sde_extract_and_convert(config)
-        
         self.db.db_disconnect()
-        
     
     # read yaml file
-    def sde_yaml_read(self, config):
+    def sde_yaml_read(self, path):
         try:
-            path = config.yaml_path
             with open(path, 'r', encoding="utf-8") as yaml_file:
                 yaml_data = yaml.safe_load(yaml_file)
                 return yaml_data
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.lg.critical(f'ERROR in {method_name}: {e}')
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
             
             
     # check if tables exists and check columns
@@ -103,4 +133,3 @@ class sde2db:
             return result
         except Exception as e:
             return None
-
