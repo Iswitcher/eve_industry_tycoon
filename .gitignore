@@ -4,7 +4,5 @@ temp/
 # ignore pycache
 __pycache__
 
-# ignore sde
-sde/
-sde_checksum.txt
-sde.db
+# ignore resources
+resources/
