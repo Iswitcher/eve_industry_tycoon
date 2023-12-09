@@ -1,4 +1,4 @@
-from log import log
+from lib.logger import log
 
 class esi:        
     

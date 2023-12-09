@@ -3,19 +3,19 @@ import os
 import glob
 import importlib
 import re
-
-from cfg import cfg
-from db.db_utils import db_utils
-
 import traceback
-from log import log
+
+from lib.cfg_reader import cfg_reader
+from lib.db.db_utils import db_utils
+from lib.logger import logger
+
 
 class sde2db:
     
     def __init__(self):
-        self.lg = log(None)
+        self.log = logger(None)
         self.db = db_utils('sde.db', None)
-        self.cfg = cfg()
+        self.cfg = cfg_reader()
         self.cfg_file = 'config/sde_import.json'
     
     
@@ -31,7 +31,7 @@ class sde2db:
                 blah = 132
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
-            self.lg.critical(f'ERROR in {method_name}: {e}')
+            self.log.critical(f'ERROR in {method_name}: {e}')
     
 
     def sde_module_import(self, path):
@@ -44,7 +44,7 @@ class sde2db:
             return module
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
-            self.lg.critical(f'ERROR in {method_name}: {e}')
+            self.log.critical(f'ERROR in {method_name}: {e}')
     
     
     def sde_convert(self, yaml):
@@ -59,7 +59,7 @@ class sde2db:
                 return yaml_data
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
-            self.lg.critical(f'ERROR in {method_name}: {e}')
+            self.log.critical(f'ERROR in {method_name}: {e}')
     
     
     

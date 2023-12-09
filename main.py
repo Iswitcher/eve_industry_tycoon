@@ -1,5 +1,5 @@
-from log import log
-from gui.gui_main import gui_main
+from lib.gui.gui_main import gui_main
+from lib.logger import logger
 
 class Main:    
     
@@ -7,7 +7,7 @@ class Main:
     def run(self):
         main_window = gui_main(None, None, None)
         main_window.run_window()
-       
+
 
 if __name__ == '__main__':
     Main().run()

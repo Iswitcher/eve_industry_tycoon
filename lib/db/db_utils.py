@@ -4,14 +4,14 @@ import hashlib
 import traceback
 from datetime import datetime
 
-from log import log
-lg = log(None)
+from lib.logger import logger
 
 class db_utils:
     
     def __init__(self, db_path, conn):
         self.db_path = db_path
         self.db_conn = conn
+        self.log = logger()
     
     
     # check if db exists, create if not
@@ -33,7 +33,7 @@ class db_utils:
             self.db_conn = sqlite3.connect(self.db_path)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
-            lg.critical(f'ERROR in {method_name}: {e}')
+            self.log.critical(f'ERROR in {method_name}: {e}')
     
     
     # close connection
@@ -42,7 +42,7 @@ class db_utils:
             self.db_conn.close()
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
-            lg.critical(f'ERROR in {method_name}: {e}')
+            self.log.critical(f'ERROR in {method_name}: {e}')
         
         
     # check if table exists
@@ -61,7 +61,7 @@ class db_utils:
             return True
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
-            lg.critical(f'ERROR in {method_name}: {e}')
+            self.log.critical(f'ERROR in {method_name}: {e}')
         
         
     # create table
@@ -78,7 +78,7 @@ class db_utils:
             _cursor.execute(q)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
-            lg.critical(f'ERROR in {method_name}: {e}')
+            self.log.critical(f'ERROR in {method_name}: {e}')
         
     
     # check if table columns exist
@@ -97,7 +97,7 @@ class db_utils:
                 self.table_column_add(table, att, type)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
-            lg.critical(f'ERROR in {method_name}: {e}')
+            self.log.critical(f'ERROR in {method_name}: {e}')
             
     
     # counts the occurence of column name in array of names
@@ -121,7 +121,7 @@ class db_utils:
             self.db_conn.commit()
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
-            lg.critical(f'ERROR in {method_name}: {e}')
+            self.log.critical(f'ERROR in {method_name}: {e}')
             
             
     # close old record and add new one
@@ -137,7 +137,7 @@ class db_utils:
             self.record_add(table, hash, columns, values)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
-            lg.critical(f'ERROR in {method_name}: {e}')
+            self.log.critical(f'ERROR in {method_name}: {e}')
         
     
     # pile all attributes and make a hash of it
@@ -148,7 +148,7 @@ class db_utils:
             return md5.hexdigest()
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
-            lg.critical(f'ERROR in {method_name}: {e}')
+            self.logger.critical(f'ERROR in {method_name}: {e}')
     
     
     # get old record by id
@@ -168,7 +168,7 @@ class db_utils:
             return None
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
-            lg.critical(f'ERROR in {method_name}: {e}')
+            self.log.critical(f'ERROR in {method_name}: {e}')
         
         
     # set end date for old record
@@ -186,7 +186,7 @@ class db_utils:
             _cursor.close()
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
-            lg.critical(f'ERROR in {method_name}: {e}')
+            self.log.critical(f'ERROR in {method_name}: {e}')
             
             
     # add new record
@@ -211,7 +211,7 @@ class db_utils:
             
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
-            lg.critical(f'ERROR in {method_name}: {e}')
+            self.log.critical(f'ERROR in {method_name}: {e}')
         
     
     def get_insert_query(self, table, columns, values):

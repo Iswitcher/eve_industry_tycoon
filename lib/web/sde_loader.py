@@ -3,15 +3,16 @@ import zipfile
 import shutil
 import traceback
 
-from log import log
-from cfg import cfg
-from web.web import web
+from lib.logger import logger
+from lib.cfg_reader import cfg_reader
+from lib.web.web import web
 
-lg = log(None)
 
-class sde:
+class sde_loader:
     
     def __init__(self):
+        self.log = logger()
+        self.cfg = cfg_reader()
         self.sde_config_path = 'config/sde_import.json'
         self.sde_endpoints = {}
 
@@ -32,13 +33,12 @@ class sde:
             self.sde_hash_new_save(new_hash)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
-            lg.critical(f'ERROR in {method_name}: {e}')
+            self.log.critical(f'ERROR in {method_name}: {e}')
 
     
     # get sde config JSON
     def sde_config_get(self):
-        config = cfg()
-        self.sde_endpoints = config.get_config_json(self.sde_config_path)
+        self.sde_endpoints = self.cfg.get_config_json(self.sde_config_path)
         
     
     # fetch local saved sde hash (if exists)
@@ -50,7 +50,7 @@ class sde:
             return checksum
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
-            lg.critical(f'ERROR in {method_name}: {e}')
+            self.log.critical(f'ERROR in {method_name}: {e}')
             return ''
     
     
@@ -62,7 +62,7 @@ class sde:
             return checksum
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
-            lg.critical(f'ERROR in {method_name}: {e}')
+            self.log.critical(f'ERROR in {method_name}: {e}')
         
     
     # check if sde hash is obsolete
@@ -73,7 +73,7 @@ class sde:
             return False
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
-            lg.critical(f'ERROR in {method_name}: {e}')
+            self.log.critical(f'ERROR in {method_name}: {e}')
             return False
            
         
@@ -85,7 +85,7 @@ class sde:
             file.close()
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
-            lg.critical(f'ERROR in {method_name}: {e}')
+            self.log.critical(f'ERROR in {method_name}: {e}')
         
         
     # sde download
@@ -97,13 +97,9 @@ class sde:
             self.sde_dir_clean()
             with zipfile.ZipFile(data, 'r') as zip:
                 zip.extractall('')
-            
-            # with open(self.sde_zip_path, 'w', encoding="utf-8") as file:
-            #     file.write(data)
-            # file.close
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
-            lg.critical(f'ERROR in {method_name}: {e}')
+            self.log.critical(f'ERROR in {method_name}: {e}')
             
             
     # create sde dir if not exists
@@ -120,4 +116,4 @@ class sde:
                 return
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
-            lg.critical(f'ERROR in {method_name}: {e}')
+            self.log.critical(f'ERROR in {method_name}: {e}')

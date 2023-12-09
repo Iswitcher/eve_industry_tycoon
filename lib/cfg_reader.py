@@ -2,13 +2,13 @@ import os
 import json
 import traceback
 
-from log import log
+from lib.logger import logger
 from collections import namedtuple
 
 def customJsonDecoder(json):
     return namedtuple('X', json.keys())(*json.values())
 
-class cfg:
+class cfg_reader:
     
     # fetch and return config json
     def get_config_json(self, path):
@@ -18,5 +18,5 @@ class cfg:
             return data
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
-            log.critical(f'ERROR in {method_name}: {e}')
+            logger.critical(f'ERROR in {method_name}: {e}')
             return {}

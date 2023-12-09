@@ -1,11 +1,8 @@
-import threading
+# import threading
+import tkinter as tk
 from tkinter import messagebox
 
-import tkinter as tk
-window = tk.Tk()
-
 from logic import logic
-lg = logic() 
 
 
 class gui_main:
@@ -14,15 +11,17 @@ class gui_main:
         self.title = "EvE Industry Tycoon"
         self.height = 600
         self.width = 800
+        self.window = tk.Tk()
+        self.logic = logic()
 
 
     def run_window(self):
              
-        window.title(self.title)
-        window.geometry(f"{self.width}x{self.height}")
-        self.create_menubar(window)
+        self.window.title(self.title)
+        self.window.geometry(f"{self.width}x{self.height}")
+        self.create_menubar(self.window)
         
-        window.mainloop()
+        self.window.mainloop()
                 
 
     def create_menubar(self, window):
@@ -55,7 +54,7 @@ class gui_main:
     def menu_exit(self):
         result = messagebox.askyesno("Exiting", "Closing, eh?")
         if result:
-            window.destroy()
+            self.window.destroy()
         else:
             return
 
@@ -67,11 +66,11 @@ class gui_main:
     
     # Check and download fresh SDE files
     def menu_update_sde(self):
-        lg.sde_update()
+        self.logic.sde_update()
         messagebox.showinfo("Update Complete", "SDE Update Finished!")
         
     
     # parse local SDE yaml 2 sqlite
     def menu_sde_2_db(self):
-        lg.sde_2_db()
+        self.logic.sde_2_db()
         messagebox.showinfo("Parsing Complete", "YAML files imported")
