@@ -5,15 +5,14 @@ import traceback
 
 from lib.cfg_reader import cfg_reader
 from lib.db.db_utils import db_utils
-from lib.logger import logger
 
 
 class sde2db:
     
-    def __init__(self):
-        self.log = logger()
+    def __init__(self, log):
+        self.log = log
         self.db_path = 'resources/sde.db'
-        self.db = db_utils(self.db_path, None, self.log)
+        self.db = db_utils(self.log, self.db_path, None)
         self.cfg = cfg_reader()
         self.cfg_file = 'config/sde_import.json'
         self.sde_mapping_path = 'lib.db.sde2db_mapping.fsd.' #TODO: a better solution mb?
@@ -61,7 +60,7 @@ class sde2db:
             self.log.info(f'Converting the {path}')
             yaml_file = self.sde_yaml_read(path)
             module = self.sde_abs_class_import(path)
-            module_instance = module(self.db_path, yaml_file)
+            module_instance = module(self.db_path, yaml_file, self.log)
             module_instance.run()
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]

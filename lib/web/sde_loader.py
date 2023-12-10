@@ -3,15 +3,14 @@ import zipfile
 import shutil
 import traceback
 
-from lib.logger import logger
 from lib.cfg_reader import cfg_reader
 from lib.web.http import http
 
 
 class sde_loader:
     
-    def __init__(self):
-        self.log = logger()
+    def __init__(self, log):
+        self.log = log
         self.cfg = cfg_reader()
         self.http = http()
         self.sde_config_path = 'config/sde_import.json'

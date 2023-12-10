@@ -6,7 +6,7 @@ from datetime import datetime
 
 class db_utils:
     
-    def __init__(self, db_path, conn, log):
+    def __init__(self, log, db_path, conn=None):
         self.db_path = db_path
         self.db_conn = conn
         self.log = log

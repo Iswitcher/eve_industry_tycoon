@@ -6,11 +6,11 @@ from lib.logger import logger
 
 class agents(mapper):
     
-    def __init__(self, db_path, yaml):
+    def __init__(self, db_path, yaml, log):
         self.db_path = db_path
         self.yaml = yaml
-        self.db = db_utils(self.db_path, None)
-        self.log = logger()
+        self.log = log
+        self.db = db_utils(self.log, self.db_path, None)
         
         self.table_agents = 'agents'
         self.table_agents_pk = 'agent_id'
