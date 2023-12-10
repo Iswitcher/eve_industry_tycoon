@@ -1,7 +1,14 @@
 import logging
 
 class logger:
-    def __init__(self, text=None):
+    _instance = None
+
+    def __new__(cls):
+        if not cls._instance:
+            cls._instance = super(logger, cls).__new__(cls)
+        return cls._instance
+    
+    def __init__(self):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
         
@@ -10,7 +17,6 @@ class logger:
         handler.setLevel(logging.INFO)
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
-        self.text = text
     
     
     def info(self, text):

@@ -4,14 +4,12 @@ import hashlib
 import traceback
 from datetime import datetime
 
-from lib.logger import logger
-
 class db_utils:
     
-    def __init__(self, db_path, conn):
+    def __init__(self, db_path, conn, log):
         self.db_path = db_path
         self.db_conn = conn
-        self.log = logger()
+        self.log = log
     
     
     # check if db exists, create if not

@@ -11,9 +11,9 @@ from lib.logger import logger
 class sde2db:
     
     def __init__(self):
-        self.log = logger(None)
+        self.log = logger()
         self.db_path = 'resources/sde.db'
-        self.db = db_utils(self.db_path, None)
+        self.db = db_utils(self.db_path, None, self.log)
         self.cfg = cfg_reader()
         self.cfg_file = 'config/sde_import.json'
         self.sde_mapping_path = 'lib.db.sde2db_mapping.fsd.' #TODO: a better solution mb?
