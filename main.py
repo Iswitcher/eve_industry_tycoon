@@ -1,5 +1,4 @@
 from lib.gui.gui_main import gui_main
-from lib.logger import logger
 
 class Main:    
     

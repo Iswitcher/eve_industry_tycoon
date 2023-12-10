@@ -12,4 +12,4 @@ class logic:
     # parse sde yaml into sqlite
     def sde_2_db(self):
         sde = sde2db()
-        sde2db.sde_convert_all()
+        sde.sde_convert_all()

@@ -1,6 +1,4 @@
 import yaml
-import os
-import glob
 import importlib
 import re
 import traceback
@@ -14,9 +12,11 @@ class sde2db:
     
     def __init__(self):
         self.log = logger(None)
-        self.db = db_utils('resources/sde.db', None)
+        self.db_path = 'resources/sde.db'
+        self.db = db_utils(self.db_path, None)
         self.cfg = cfg_reader()
         self.cfg_file = 'config/sde_import.json'
+        self.sde_mapping_path = 'lib.db.sde2db_mapping.fsd.' #TODO: a better solution mb?
     
     
     # main conversion method
@@ -24,32 +24,25 @@ class sde2db:
         try:
             cfg_file = self.cfg.get_config_json(self.cfg_file)
             yamls = cfg_file.yaml_to_convert
-            
             for path in yamls:
-                # yaml_file = self.sde_yaml_read(path)
-                module = self.sde_module_import(path)
-                blah = 132
+                self.sde_convert_yaml(path)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
     
 
-    def sde_module_import(self, path):
+    # retrieve abstract class by name
+    def sde_abs_class_import(self, path):
         try:
-            pattern = re.compile(r'\w+(?=.yaml)')
-            name = re.search(pattern, path).group()
-            module_path = 'sde2db.fsd.' + name
-            module = importlib.import_module(module_path)
-            cls = getattr(module, 'name')
-            return module
+            re_pattern = re.compile(r'\w+(?=.yaml)')
+            module_name = re.search(re_pattern, path).group()
+            module = importlib.import_module(self.sde_mapping_path + module_name)
+            cls = getattr(module, module_name)
+            return cls
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
     
-    
-    def sde_convert(self, yaml):
-        self.db.db_connect()
-        self.db.db_disconnect()
     
     # read yaml file
     def sde_yaml_read(self, path):
@@ -62,74 +55,14 @@ class sde2db:
             self.log.critical(f'ERROR in {method_name}: {e}')
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-            
-            
-    # check if tables exists and check columns
-    def sde_table_check(self, config):
+   # get the reference conversion class and run the yaml2sql conversion
+    def sde_convert_yaml(self, path):
         try:
-            table = config.db_table
-            columns = []
-            types = []
-            if not self.db.table_check(table):
-                self.db.table_create(table)       
-            for col in config.columns:
-                columns.append(col.col)
-                types.append(col.type)         
-            self.db.table_column_check(table, columns, types)
+            self.log.info(f'Converting the {path}')
+            yaml_file = self.sde_yaml_read(path)
+            module = self.sde_abs_class_import(path)
+            module_instance = module(self.db_path, yaml_file)
+            module_instance.run()
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
-            self.lg.critical(f'ERROR in {method_name}: {e}')
-    
-        
-    # insert into db a new record
-    def sde_table_try_insert(self, table, id_name, id, columns, values):
-        try:
-            self.db.record_add_or_replace(table, id_name, id, columns, values)
-        except Exception as e:
-            method_name = traceback.extract_stack(None, 2)[0][2]
-            self.lg.critical(f'ERROR in {method_name}: {e}')
-    
-    
-    # get the values from yaml and push to sql
-    def sde_extract_and_convert(self, config):
-        try: 
-            self.sde_table_check(config)
-            yaml_data = self.sde_yaml_read(config)
-            for obj_id in yaml_data:
-                row = yaml_data[obj_id]
-                columns = []
-                values = []
-                for col in config.columns:
-                    columns.append(col.col)
-                    value = self.yaml_value_extract(obj_id, row, col.path)
-                    values.append(value)
-                self.sde_table_try_insert(config.db_table,config.pk_name, 
-                    obj_id,columns,values)
-        except Exception as e:
-            method_name = traceback.extract_stack(None, 2)[0][2]
-            self.lg.critical(f'ERROR in {method_name}: {e}')
-    
-    
-    # get yaml value by path or fill None if not found
-    def yaml_value_extract(self, id, yaml_row, path):
-        path_array = path.split('/')
-        result = yaml_row
-        try:
-            for node in path_array:
-                if node == 'root' and len(path_array) == 1: 
-                    return id
-                if node == 'root' and len(path_array) > 1: 
-                    continue
-                result = result.get(node)
-            return result
-        except Exception as e:
-            return None
+            self.log.critical(f'ERROR in {method_name}: {e}')
