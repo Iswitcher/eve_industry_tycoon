@@ -22,11 +22,11 @@ class agents(mapper):
             self.db.db_connect()
             
             self.check_tables_and_columns()
-            
+            self.sync_start()
             for row in self.yaml:
                 # add row to agents table
                 self.add_agent(self.table_agents, self.table_agents_pk, row, self.yaml[row]) 
-            
+            self.sync_end()
             self.db.db_disconnect()
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
@@ -53,6 +53,24 @@ class agents(mapper):
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
+            
+    
+    # prepare for sync
+    def sync_start(self):
+        try:
+            self.db.table_start_sync(self.table_agents)
+        except Exception as e:
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            self.log.critical(f'ERROR in {method_name}: {e}')
+    
+    # complete the sync
+    def sync_end(self):
+        try:
+            self.db.table_finish_sync(self.table_agents)
+        except Exception as e:
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            self.log.critical(f'ERROR in {method_name}: {e}')
+    
 
     # get the list of columns in table: agents
     def get_agent_columns(self, columns = [], types = []):

@@ -72,6 +72,7 @@ class db_utils:
                 CREATE TABLE {table}
                 (
                     hash        TEXT,
+                    is_updated  NUMBER,
                     start_date  DATE,
                     end_date    DATE
                 )""")
@@ -131,6 +132,7 @@ class db_utils:
             hash = self.get_record_hash_md5(values)
             old_hash = self.get_old_record_hash(table, id_name, id)
             if hash == old_hash:
+                self.record_set_is_updated(table, id_name, id)
                 return
             if old_hash != None:
                 self.record_close(table, id_name, id)
@@ -177,7 +179,25 @@ class db_utils:
             _cursor = self.db_conn.cursor()
             q = f"""
                 UPDATE {table}
-                SET end_date = DATETIME('now')
+                SET end_date = DATETIME('now'),
+                    is_updated = 1
+                WHERE {key} = {value}
+                AND end_date > DATETIME('now')
+                """
+            _cursor.execute(q)
+            self.db_conn.commit()
+            _cursor.close()
+        except Exception as e:
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            self.log.critical(f'ERROR in {method_name}: {e}')
+    
+    
+    def record_set_is_updated(self, table, key, value):
+        try:
+            _cursor = self.db_conn.cursor()
+            q = f"""
+                UPDATE {table}
+                SET is_updated = 1
                 WHERE {key} = {value}
                 AND end_date > DATETIME('now')
                 """
@@ -196,6 +216,10 @@ class db_utils:
             columns.append("hash")
             values.append(hash)
             
+            # add is_updated_flag
+            columns.append("is_updated")
+            values.append(1)
+            
             # add dates
             columns.append("start_date")
             values.append(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
@@ -206,9 +230,7 @@ class db_utils:
             _cursor = self.db_conn.cursor()
             _cursor.execute(q_obj['query'], q_obj['values'])
             self.db_conn.commit()
-            _cursor.close()
-            
-            
+            _cursor.close()  
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
@@ -222,3 +244,38 @@ class db_utils:
         """
         return {'query': query, 'values': tuple(values)}
     
+
+    # unflag all rows before sync
+    def table_start_sync(self, table):
+        try:
+            _cursor = self.db_conn.cursor()
+            q = f"""
+                UPDATE {table}
+                SET is_updated = 0
+                WHERE end_date > DATETIME('now')
+                """
+            _cursor.execute(q)
+            self.db_conn.commit()
+            _cursor.close()
+        except Exception as e:
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            self.log.critical(f'ERROR in {method_name}: {e}')
+
+
+    # close all rows which weren't in yaml
+    def table_finish_sync(self, table):
+        try:
+            _cursor = self.db_conn.cursor()
+            q = f"""
+                UPDATE {table}
+                SET is_updated = 1, 
+                    end_date = DATETIME('now')
+                WHERE is_updated = 0
+                AND end_date > DATETIME('now')
+                """
+            _cursor.execute(q)
+            self.db_conn.commit()
+            _cursor.close()
+        except Exception as e:
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            self.log.critical(f'ERROR in {method_name}: {e}')
