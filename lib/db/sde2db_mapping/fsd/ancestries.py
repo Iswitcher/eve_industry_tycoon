@@ -22,24 +22,23 @@ class ancestries(mapper):
             self.db.db_connect()
             
             self.check_tables_and_columns()
-            self.sync_start()
-            for row in self.yaml:
-                # add row to agents table
-                self.add_agent(self.table_ancestries, self.table_ancestries_pk, row, self.yaml[row]) 
-            self.sync_end()
+            self.sync()
             
             self.db.db_commit()
             self.db.db_disconnect()
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
-            
     
-    # check if table exists
-    def check_table(self, table):
+    
+    #go row by row and fill each table
+    def sync(self):
         try:
-            if not self.db.table_check(table):
-                self.db.table_create(table)
+            self.db.table_start_sync(self.table_ancestries)
+            for row in self.yaml:
+                # add row to agents table
+                self.add_agent(self.table_ancestries, self.table_ancestries_pk, row, self.yaml[row])
+            self.db.table_finish_sync(self.table_ancestries)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
@@ -49,27 +48,10 @@ class ancestries(mapper):
     def check_tables_and_columns(self):
         try:
             # agents
-            self.check_table(self.table_ancestries)
+            if not self.db.table_check(self.table_ancestries):
+                self.db.table_create(self.table_ancestries)
             agent_columns, agent_types = self.get_agent_columns()
             self.db.table_column_check(self.table_ancestries, agent_columns, agent_types)  
-        except Exception as e:
-            method_name = traceback.extract_stack(None, 2)[0][2]
-            self.log.critical(f'ERROR in {method_name}: {e}')
-            
-    
-    # prepare for sync
-    def sync_start(self):
-        try:
-            self.db.table_start_sync(self.table_ancestries)
-        except Exception as e:
-            method_name = traceback.extract_stack(None, 2)[0][2]
-            self.log.critical(f'ERROR in {method_name}: {e}')
-    
-    
-    # complete the sync
-    def sync_end(self):
-        try:
-            self.db.table_finish_sync(self.table_ancestries)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')

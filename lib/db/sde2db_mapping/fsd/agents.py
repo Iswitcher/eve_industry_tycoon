@@ -22,11 +22,7 @@ class agents(mapper):
             self.db.db_connect()
             
             self.check_tables_and_columns()
-            self.sync_start()
-            for row in self.yaml:
-                # add row to agents table
-                self.add_agent(self.table_agents, self.table_agents_pk, row, self.yaml[row]) 
-            self.sync_end()
+            self.sync()
             
             self.db.db_commit()
             self.db.db_disconnect()
@@ -35,11 +31,14 @@ class agents(mapper):
             self.log.critical(f'ERROR in {method_name}: {e}')
             
     
-    # check if table exists
-    def check_table(self, table):
+    #go row by row and fill each table
+    def sync(self):
         try:
-            if not self.db.table_check(table):
-                self.db.table_create(table)
+            self.db.table_start_sync(self.table_agents)
+            for row in self.yaml:
+                # add row to agents table
+                self.add_agent(self.table_agents, self.table_agents_pk, row, self.yaml[row]) 
+            self.db.table_finish_sync(self.table_agents)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
@@ -49,30 +48,25 @@ class agents(mapper):
     def check_tables_and_columns(self):
         try:
             # agents
-            self.check_table(self.table_agents)
+            if not self.db.table_check(self.table_agents):
+                self.db.table_create(self.table_agents)
             agent_columns, agent_types = self.get_agent_columns()
             self.db.table_column_check(self.table_agents, agent_columns, agent_types)  
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
             
-    
-    # prepare for sync
-    def sync_start(self):
+            
+    # get yaml value by path or fill None if not found
+    def yaml_value_extract(self, yaml_row, path):
+        path_array = path.split('/')
+        result = yaml_row
         try:
-            self.db.table_start_sync(self.table_agents)
-        except Exception as e:
-            method_name = traceback.extract_stack(None, 2)[0][2]
-            self.log.critical(f'ERROR in {method_name}: {e}')
-    
-    
-    # complete the sync
-    def sync_end(self):
-        try:
-            self.db.table_finish_sync(self.table_agents)
-        except Exception as e:
-            method_name = traceback.extract_stack(None, 2)[0][2]
-            self.log.critical(f'ERROR in {method_name}: {e}')
+            for node in path_array:
+                result = result.get(node)
+            return result
+        except (KeyError, TypeError):
+            return None
     
 
     # get the list of columns in table: agents
@@ -111,22 +105,22 @@ class agents(mapper):
             values.append(id)
             
             columns.append('agent_type_id')
-            values.append(row['agentTypeID'])
+            values.append(self.yaml_value_extract(row, 'agentTypeID'))
             
             columns.append('corporation_id')
-            values.append(row['corporationID'])
+            values.append(self.yaml_value_extract(row, 'corporationID'))
             
             columns.append('division_id')
-            values.append(row['divisionID'])
+            values.append(self.yaml_value_extract(row, 'divisionID'))
             
             columns.append('is_locator')
-            values.append(row['isLocator'])
+            values.append(self.yaml_value_extract(row, 'isLocator'))
             
             columns.append('level')
-            values.append(row['level'])
+            values.append(self.yaml_value_extract(row, 'level'))
             
             columns.append('location_id')
-            values.append(row['locationID'])
+            values.append(self.yaml_value_extract(row, 'locationID'))
             
             self.db.record_add_or_replace(table, pk, id, columns, values)
         except Exception as e:
