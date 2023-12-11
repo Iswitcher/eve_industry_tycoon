@@ -6,11 +6,12 @@ from datetime import datetime
 
 class db_utils:
     
-    def __init__(self, log, db_path, conn=None):
+    def __init__(self, log, db_path, conn=None, _cursor=None):
         self.db_path = db_path
         self.db_conn = conn
+        self._cursor = _cursor
         self.log = log
-    
+        
     
     # check if db exists, create if not
     def db_check(self):
@@ -29,9 +30,19 @@ class db_utils:
         try:
             self.db_check()
             self.db_conn = sqlite3.connect(self.db_path)
+            self._cursor = self.db_conn.cursor()
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
+    
+    
+    # commit updates
+    def db_commit(self):
+        try:
+            self.db_conn.commit()
+        except Exception as e:
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            self.log.critical(f'ERROR in {method_name}: {e}')   
     
     
     # close connection
@@ -46,15 +57,14 @@ class db_utils:
     # check if table exists
     def table_check(self, table: str):
         try:
-            _cursor = self.db_conn.cursor()
             q = f"""
                 SELECT name 
                 FROM sqlite_master 
                 WHERE type='table' 
                 AND name='{table}'
                 """
-            _cursor.execute(q)
-            if _cursor.fetchone() is None:
+            self._cursor.execute(q)
+            if self._cursor.fetchone() is None:
                 return False
             return True
         except Exception as e:
@@ -65,7 +75,6 @@ class db_utils:
     # create table
     def table_create(self, table: str):
         try:
-            _cursor = self.db_conn.cursor()
             q = (f"""
                 CREATE TABLE {table}
                 (
@@ -74,7 +83,7 @@ class db_utils:
                     start_date  DATE,
                     end_date    DATE
                 )""")
-            _cursor.execute(q)
+            self._cursor.execute(q)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
@@ -85,15 +94,15 @@ class db_utils:
         try:
             if len(columns) != len(types):
                 raise Exception("Mismatch lenght of columns/types!")
-            _cursor = self.db_conn.cursor()
-            _cursor.execute(f"PRAGMA table_info({table})")
-            rows = _cursor.fetchall()
+            self._cursor.execute(f"PRAGMA table_info({table})")
+            rows = self._cursor.fetchall()
             column_names = [row[1] for row in rows]
             for i, att in enumerate(columns):
                 if self.cnt_col_occur(att, column_names) > 0:
                     continue
                 type = types[i]
                 self.table_column_add(table, att, type)
+            self.db_commit()
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
@@ -111,13 +120,11 @@ class db_utils:
     # adds new table column of specified type
     def table_column_add(self, table, att_name, att_type):
         try:
-            _cursor = self.db_conn.cursor()
             alter_query = f"""
                 ALTER TABLE {table} 
                 ADD COLUMN {att_name} {att_type}
                 """
-            _cursor.execute(alter_query)
-            self.db_conn.commit()
+            self._cursor.execute(alter_query)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
@@ -154,15 +161,14 @@ class db_utils:
     # get old record by id
     def get_old_record_hash(self, table, key, value):
         try:
-            _cursor = self.db_conn.cursor()
             q = f"""
                 SELECT hash
                 FROM {table}
                 WHERE {key} = {value}
                 AND end_date > DATE('now')
                 """
-            _cursor.execute(q)
-            row = _cursor.fetchone()
+            self._cursor.execute(q)
+            row = self._cursor.fetchone()
             if row is not None:
                 return row[0]
             return None
@@ -174,7 +180,6 @@ class db_utils:
     # set end date for old record
     def record_close(self, table, key, value):
         try:
-            _cursor = self.db_conn.cursor()
             q = f"""
                 UPDATE {table}
                 SET end_date = DATETIME('now'),
@@ -182,9 +187,7 @@ class db_utils:
                 WHERE {key} = {value}
                 AND end_date > DATETIME('now')
                 """
-            _cursor.execute(q)
-            self.db_conn.commit()
-            _cursor.close()
+            self._cursor.execute(q)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
@@ -192,16 +195,13 @@ class db_utils:
     
     def record_set_is_updated(self, table, key, value):
         try:
-            _cursor = self.db_conn.cursor()
             q = f"""
                 UPDATE {table}
                 SET is_updated = 1
                 WHERE {key} = {value}
                 AND end_date > DATETIME('now')
                 """
-            _cursor.execute(q)
-            self.db_conn.commit()
-            _cursor.close()
+            self._cursor.execute(q)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
@@ -225,10 +225,7 @@ class db_utils:
             values.append(datetime(9999, 12, 31, 23, 59, 59, 0))
             
             q_obj = self.get_insert_query(table, columns, values)
-            _cursor = self.db_conn.cursor()
-            _cursor.execute(q_obj['query'], q_obj['values'])
-            self.db_conn.commit()
-            _cursor.close()  
+            self._cursor.execute(q_obj['query'], q_obj['values']) 
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
@@ -246,15 +243,12 @@ class db_utils:
     # unflag all rows before sync
     def table_start_sync(self, table):
         try:
-            _cursor = self.db_conn.cursor()
             q = f"""
                 UPDATE {table}
                 SET is_updated = 0
                 WHERE end_date > DATETIME('now')
                 """
-            _cursor.execute(q)
-            self.db_conn.commit()
-            _cursor.close()
+            self._cursor.execute(q)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
@@ -263,7 +257,6 @@ class db_utils:
     # close all rows which weren't in yaml
     def table_finish_sync(self, table):
         try:
-            _cursor = self.db_conn.cursor()
             q = f"""
                 UPDATE {table}
                 SET is_updated = 1, 
@@ -271,9 +264,7 @@ class db_utils:
                 WHERE is_updated = 0
                 AND end_date > DATETIME('now')
                 """
-            _cursor.execute(q)
-            self.db_conn.commit()
-            _cursor.close()
+            self._cursor.execute(q)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')

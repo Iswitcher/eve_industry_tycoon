@@ -27,6 +27,8 @@ class agents(mapper):
                 # add row to agents table
                 self.add_agent(self.table_agents, self.table_agents_pk, row, self.yaml[row]) 
             self.sync_end()
+            
+            self.db.db_commit()
             self.db.db_disconnect()
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
@@ -62,6 +64,7 @@ class agents(mapper):
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
+    
     
     # complete the sync
     def sync_end(self):
