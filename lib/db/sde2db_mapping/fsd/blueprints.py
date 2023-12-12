@@ -4,7 +4,7 @@ from lib.db.sde2db_mapping.sde_mapper import mapper
 from lib.db.db_utils import db_utils
 from lib.logger import logger
 
-class agents(mapper):
+class blueprints(mapper):
     
     def __init__(self, db_path, yaml, log):
         self.db_path = db_path
@@ -12,8 +12,9 @@ class agents(mapper):
         self.log = log
         self.db = db_utils(self.log, self.db_path, None)
         
-        self.table_agents = 'agents'
-        self.table_agents_pk = 'agent_id'
+        self.table_blueprints = 'blueprints'
+        self.table_blueprints_pk = 'blueprint_id'
+        self.table_blueprints_columns = []
 
 
     def run(self):
@@ -34,11 +35,11 @@ class agents(mapper):
     #go row by row and fill each table
     def sync(self):
         try:
-            self.db.table_start_sync(self.table_agents)
+            self.db.table_start_sync(self.table_blueprints)
             for row in self.yaml:
-                # add row to agents table
-                self.add_agent(self.table_agents, self.table_agents_pk, row, self.yaml[row]) 
-            self.db.table_finish_sync(self.table_agents)
+                # add row to blueprints table
+                self.add_blueprint(self.table_blueprints, self.table_blueprints_pk, row, self.yaml[row]) 
+            self.db.table_finish_sync(self.table_blueprints)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
@@ -47,11 +48,11 @@ class agents(mapper):
     # check all class-cpecific tables and columns
     def check_tables_and_columns(self):
         try:
-            # agents
-            if not self.db.table_check(self.table_agents):
-                self.db.table_create(self.table_agents)
-            columns, types = self.get_agent_columns()
-            self.db.table_column_check(self.table_agents, columns, types)  
+            # blueprints
+            if not self.db.table_check(self.table_blueprints):
+                self.db.table_create(self.table_blueprints)
+            columns, types = self.get_blueprint_columns()
+            self.db.table_column_check(self.table_blueprints, columns, types)  
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
@@ -69,59 +70,66 @@ class agents(mapper):
             return None
     
 
-    # get the list of columns in table: agents
-    def get_agent_columns(self, columns = [], types = []):
-        columns.append('agent_id')
+    # get the list of columns in table: blueprints
+    def get_blueprint_columns(self, columns = [], types = []):
+        columns.append('blueprint_id')
         types.append('NUMBER')
         
-        columns.append('agent_type_id')
+        columns.append('blueprint_type_id')
         types.append('NUMBER')
         
-        columns.append('corporation_id')
+        columns.append('max_production_limit')
         types.append('NUMBER')
         
-        columns.append('division_id')
+        columns.append('copying_time')
         types.append('NUMBER')
         
-        columns.append('is_locator')
+        columns.append('manufacturing_time')
         types.append('NUMBER')
         
-        columns.append('level')
+        columns.append('invention_time')
         types.append('NUMBER')
         
-        columns.append('location_id')
+        columns.append('material_eff_research_time')
+        types.append('NUMBER')
+        
+        columns.append('time_eff_research_time')
         types.append('NUMBER')
         
         return columns, types    
          
     
-    # add or update an agent        
-    def add_agent(self, table, pk, id, row):
+    # add or update a blueprint        
+    def add_blueprint(self, table, pk, id, row):
         try:
             columns = []
             values = []
             
-            columns.append('agent_id')
+            columns.append('blueprint_id')
             values.append(id)
             
-            columns.append('agent_type_id')
-            values.append(self.yaml_value_extract(row, 'agentTypeID'))
+            columns.append('blueprint_type_id')
+            values.append(self.yaml_value_extract(row, 'blueprintTypeID'))
             
-            columns.append('corporation_id')
-            values.append(self.yaml_value_extract(row, 'corporationID'))
+            columns.append('max_production_limit')
+            values.append(self.yaml_value_extract(row, 'maxProductionLimit'))
             
-            columns.append('division_id')
-            values.append(self.yaml_value_extract(row, 'divisionID'))
+            columns.append('copying_time')
+            values.append(self.yaml_value_extract(row, 'activities/copying/time'))
             
-            columns.append('is_locator')
-            values.append(self.yaml_value_extract(row, 'isLocator'))
+            columns.append('manufacturing_time')
+            values.append(self.yaml_value_extract(row, 'activities/manufacturing/time'))
             
-            columns.append('level')
-            values.append(self.yaml_value_extract(row, 'level'))
+            columns.append('invention_time')
+            blah = self.yaml_value_extract(row, 'activities/invention/time')
+            values.append(self.yaml_value_extract(row, 'activities/invention/time'))
             
-            columns.append('location_id')
-            values.append(self.yaml_value_extract(row, 'locationID'))
+            columns.append('material_eff_research_time')
+            values.append(self.yaml_value_extract(row, 'activities/research_material/time'))
             
+            columns.append('time_eff_research_time')
+            values.append(self.yaml_value_extract(row, 'activities/research_time/time'))
+
             self.db.record_add_or_replace(table, pk, id, columns, values)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]

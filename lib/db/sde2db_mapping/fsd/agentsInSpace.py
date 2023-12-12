@@ -50,8 +50,8 @@ class agentsInSpace(mapper):
             # agents
             if not self.db.table_check(self.table_agents):
                 self.db.table_create(self.table_agents)
-            agent_columns, agent_types = self.get_agent_columns()
-            self.db.table_column_check(self.table_agents, agent_columns, agent_types)  
+            columns, types = self.get_agent_columns()
+            self.db.table_column_check(self.table_agents, columns, types)  
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')

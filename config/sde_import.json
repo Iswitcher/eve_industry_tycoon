@@ -2,8 +2,6 @@
 	"sde_checksum_url": "https://eve-static-data-export.s3-eu-west-1.amazonaws.com/tranquility/checksum",
 	"sde_download_url": "https://eve-static-data-export.s3-eu-west-1.amazonaws.com/tranquility/sde.zip",
 	"yaml_to_convert": [
-		"resources/sde/fsd/agents.yaml",
-		"resources/sde/fsd/agentsInSpace.yaml",
-		"resources/sde/fsd/ancestries.yaml"
+		"resources/sde/fsd/agents.yaml"
 	]
 }

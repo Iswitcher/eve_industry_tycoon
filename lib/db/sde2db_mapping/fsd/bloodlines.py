@@ -4,7 +4,7 @@ from lib.db.sde2db_mapping.sde_mapper import mapper
 from lib.db.db_utils import db_utils
 from lib.logger import logger
 
-class ancestries(mapper):
+class bloodlines(mapper):
     
     def __init__(self, db_path, yaml, log):
         self.db_path = db_path
@@ -12,8 +12,8 @@ class ancestries(mapper):
         self.log = log
         self.db = db_utils(self.log, self.db_path, None)
         
-        self.table_ancestries = 'ancestries'
-        self.table_ancestries_pk = 'ancestry_id'
+        self.table_bloodlines = 'bloodlines'
+        self.table_bloodlines_pk = 'bloodline_id'
 
 
     def run(self):
@@ -29,16 +29,16 @@ class ancestries(mapper):
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
-    
+            
     
     #go row by row and fill each table
     def sync(self):
         try:
-            self.db.table_start_sync(self.table_ancestries)
+            self.db.table_start_sync(self.table_bloodlines)
             for row in self.yaml:
-                # add row to ancestries table
-                self.add_ancestry(self.table_ancestries, self.table_ancestries_pk, row, self.yaml[row])
-            self.db.table_finish_sync(self.table_ancestries)
+                # add row to bloodlines table
+                self.add_bloodline(self.table_bloodlines, self.table_bloodlines_pk, row, self.yaml[row]) 
+            self.db.table_finish_sync(self.table_bloodlines)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
@@ -47,11 +47,11 @@ class ancestries(mapper):
     # check all class-cpecific tables and columns
     def check_tables_and_columns(self):
         try:
-            # ancestries
-            if not self.db.table_check(self.table_ancestries):
-                self.db.table_create(self.table_ancestries)
-            columns, types = self.get_ancestries_columns()
-            self.db.table_column_check(self.table_ancestries, columns, types)  
+            # bloodlines
+            if not self.db.table_check(self.table_bloodlines):
+                self.db.table_create(self.table_bloodlines)
+            columns, types = self.get_bloodline_columns()
+            self.db.table_column_check(self.table_bloodlines, columns, types)  
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
@@ -69,21 +69,18 @@ class ancestries(mapper):
             return None
     
 
-    # get the list of columns in table: ancestries
-    def get_ancestries_columns(self, columns = [], types = []):
-        columns.append('ancestry_id')
-        types.append('NUMBER')
-        
+    # get the list of columns in table: bloodlines
+    def get_bloodline_columns(self, columns = [], types = []):
         columns.append('bloodline_id')
         types.append('NUMBER')
         
-        columns.append('icon_id')
+        columns.append('corporation_id')
+        types.append('NUMBER')
+        
+        columns.append('race_id')
         types.append('NUMBER')
         
         columns.append('name')
-        types.append('TEXT')
-        
-        columns.append('short_desc')
         types.append('TEXT')
         
         columns.append('desc')
@@ -107,26 +104,23 @@ class ancestries(mapper):
         return columns, types    
          
     
-    # add or update an ancestry        
-    def add_ancestry(self, table, pk, id, row):
+    # add or update a bloodline        
+    def add_bloodline(self, table, pk, id, row):
         try:
             columns = []
             values = []
             
-            columns.append('ancestry_id')
+            columns.append('bloodline_id')
             values.append(id)
             
-            columns.append('bloodline_id')
-            values.append(self.yaml_value_extract(row, 'bloodlineID'))
+            columns.append('corporation_id')
+            values.append(self.yaml_value_extract(row, 'corporationID'))
             
-            columns.append('icon_id')
-            values.append(self.yaml_value_extract(row, 'iconID'))
+            columns.append('race_id')
+            values.append(self.yaml_value_extract(row, 'raceID'))
             
             columns.append('name')
             values.append(self.yaml_value_extract(row, 'nameID/en'))
-            
-            columns.append('short_desc')
-            values.append(self.yaml_value_extract(row, 'shortDescription'))
             
             columns.append('desc')
             values.append(self.yaml_value_extract(row, 'descriptionID/en'))

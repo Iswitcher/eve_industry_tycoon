@@ -2,6 +2,7 @@ import yaml
 import importlib
 import re
 import traceback
+import time
 
 from lib.cfg_reader import cfg_reader
 from lib.db.db_utils import db_utils
@@ -57,11 +58,24 @@ class sde2db:
    # get the reference conversion class and run the yaml2sql conversion
     def sde_convert_yaml(self, path):
         try:
-            self.log.info(f'Converting the {path}')
+            t_start = time.time()
+            self.log.info(f'Start converting: {path}')
             yaml_file = self.sde_yaml_read(path)
+            
             module = self.sde_abs_class_import(path)
-            module_instance = module(self.db_path, yaml_file, self.log)
-            module_instance.run()
+            module_instance = module(self.db, self.log)
+            
+            self.db.db_check()
+            self.db.db_connect()
+            
+            module_instance.check()
+            for row in yaml_file:
+                module_instance.run(row, yaml_file[row])
+            
+            self.db.db_commit()
+            self.db.db_disconnect()
+            t = (time.time() - t_start) * 10000
+            self.log.info(f'Finish converting: {path}, {t} ms passed.')
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
