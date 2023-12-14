@@ -17,7 +17,7 @@ class agents(mapper):
     def check(self):
         try:
             # agents
-            # blah = self.agents.columns
+            blah = self.agents.columns
             agent_cols = [], agent_types = []
             for column in self.agents.columns:
                 agent_cols.append(column.name)
