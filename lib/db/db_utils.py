@@ -7,10 +7,10 @@ from datetime import datetime
 class db_utils:
     
     def __init__(self, log, db_path, conn=None, _cursor=None):
+        self.log = log
         self.db_path = db_path
         self.db_conn = conn
         self._cursor = _cursor
-        self.log = log
         
     
     # check if db exists, create if not

@@ -7,13 +7,12 @@ import time
 from lib.cfg_reader import cfg_reader
 from lib.db.db_utils import db_utils
 
-
 class sde2db:
     
     def __init__(self, log):
         self.log = log
         self.db_path = 'resources/sde.db'
-        self.db = db_utils(self.log, self.db_path, None)
+        self.db = db_utils(self.log, self.db_path, None, None)
         self.cfg = cfg_reader()
         self.cfg_file = 'config/sde_import.json'
         self.sde_mapping_path = 'lib.db.sde2db_mapping.fsd.' #TODO: a better solution mb?
@@ -36,7 +35,8 @@ class sde2db:
         try:
             re_pattern = re.compile(r'\w+(?=.yaml)')
             module_name = re.search(re_pattern, path).group()
-            module = importlib.import_module(self.sde_mapping_path + module_name)
+            module_path = self.sde_mapping_path + module_name
+            module = importlib.import_module(module_path)
             cls = getattr(module, module_name)
             return cls
         except Exception as e:
@@ -69,8 +69,10 @@ class sde2db:
             self.db.db_connect()
             
             module_instance.check()
+            module_instance.start()
             for row in yaml_file:
                 module_instance.run(row, yaml_file[row])
+            module_instance.finish()
             
             self.db.db_commit()
             self.db.db_disconnect()
