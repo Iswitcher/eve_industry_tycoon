@@ -76,8 +76,8 @@ class sde2db:
             
             self.db.db_commit()
             self.db.db_disconnect()
-            t = (time.time() - t_start) * 10000
-            self.log.info(f'Finish converting: {path}, {t} ms passed.')
+            t = round(time.time() - t_start, 4)
+            self.log.info(f'Finish converting: {path}, {t}s passed.')
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
