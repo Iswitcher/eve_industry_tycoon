@@ -5,7 +5,7 @@ from lib.logger import logger
 class mapper(ABC):
     
     @abstractmethod
-    def __init__(self, db, log):
+    def __init__(self, db: db_utils, log: logger):
         self.db = db
         self.log = log
 

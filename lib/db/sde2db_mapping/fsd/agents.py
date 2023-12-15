@@ -6,7 +6,7 @@ from lib.logger import logger
 
 class agents(mapper):
     
-    def __init__(self, db, log):
+    def __init__(self, db: db_utils, log:logger):
         self.db = db
         self.log = log
         self.agents = table_agents()
