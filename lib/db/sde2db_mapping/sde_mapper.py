@@ -4,6 +4,7 @@ from lib.logger import logger
 
 class mapper(ABC):
     
+    @abstractmethod
     def __init__(self, db, log):
         self.db = db
         self.log = log
@@ -37,11 +38,13 @@ class mapper(ABC):
     
     
     # get yaml value by path or fill None if not found
-    def yaml_value_extract(self, yaml_row, path):
+    def yaml_value_extract(self, id, yaml_row, path):
         path_array = path.split('/')
         result = yaml_row
         try:
             for node in path_array:
+                if node == '#root':
+                    return id
                 result = result.get(node)
             return result
         except (KeyError, TypeError):

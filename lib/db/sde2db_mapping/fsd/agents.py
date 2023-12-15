@@ -11,18 +11,19 @@ class agents(mapper):
         self.log = log
         self.agents = table_agents()
         
-        
 
     # check if all tables are present
     def check(self):
         try:
             # agents
-            blah = self.agents.columns
-            agent_cols = [], agent_types = []
+            if not self.db.table_check(self.agents.table_name):
+                self.db.table_create(self.agents.table_name)
+            agent_cols = [] 
+            agent_types = []
             for column in self.agents.columns:
                 agent_cols.append(column.name)
                 agent_types.append(column.type)
-                blah = 123
+            self.db.table_column_check(self.agents.table_name, agent_cols, agent_types)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
@@ -31,7 +32,7 @@ class agents(mapper):
     # start the import
     def start(self):
         try:
-            self.db.table_start_sync(self.table_agents)
+            self.db.table_start_sync(self.agents.table_name)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
@@ -40,7 +41,7 @@ class agents(mapper):
     # add new row
     def run(self, id, row):
         try:
-            self.add_agent(self.table_agents, self.table_agents_pk, id, row) 
+            self.add_agent(self.agents.table_name, self.agents.table_pk, id, row) 
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
@@ -49,36 +50,10 @@ class agents(mapper):
     # complete the import
     def finish(self):
         try:
-            self.db.table_finish_sync(self.table_agents)
+            self.db.table_finish_sync(self.agents.table_name)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
-            self.log.critical(f'ERROR in {method_name}: {e}')
-
-
-    # get the list of columns in table: agents
-    def get_agent_columns(self, columns = [], types = []):
-        columns.append('agent_id')
-        types.append('NUMBER')
-        
-        columns.append('agent_type_id')
-        types.append('NUMBER')
-        
-        columns.append('corporation_id')
-        types.append('NUMBER')
-        
-        columns.append('division_id')
-        types.append('NUMBER')
-        
-        columns.append('is_locator')
-        types.append('NUMBER')
-        
-        columns.append('level')
-        types.append('NUMBER')
-        
-        columns.append('location_id')
-        types.append('NUMBER')
-        
-        return columns, types    
+            self.log.critical(f'ERROR in {method_name}: {e}') 
          
     
     # add or update an agent        
@@ -87,27 +62,10 @@ class agents(mapper):
             columns = []
             values = []
             
-            columns.append('agent_id')
-            values.append(id)
-            
-            columns.append('agent_type_id')
-            values.append(self.yaml_value_extract(row, 'agentTypeID'))
-            
-            columns.append('corporation_id')
-            values.append(self.yaml_value_extract(row, 'corporationID'))
-            
-            columns.append('division_id')
-            values.append(self.yaml_value_extract(row, 'divisionID'))
-            
-            columns.append('is_locator')
-            values.append(self.yaml_value_extract(row, 'isLocator'))
-            
-            columns.append('level')
-            values.append(self.yaml_value_extract(row, 'level'))
-            
-            columns.append('location_id')
-            values.append(self.yaml_value_extract(row, 'locationID'))
-            
+            for column in self.agents.columns:
+                value = self.yaml_value_extract(id, row, column.path)
+                columns.append(column.name)
+                values.append(value)
             self.db.record_add_or_replace(table, pk, id, columns, values)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
