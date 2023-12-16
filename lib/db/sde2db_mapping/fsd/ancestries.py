@@ -18,12 +18,12 @@ class ancestries(mapper):
             # ancestries
             if not self.db.table_check(self.ancestries.table_name):
                 self.db.table_create(self.ancestries.table_name)
-            agent_cols = [] 
-            agent_types = []
+            ancestry_cols = [] 
+            ancestry_types = []
             for column in self.ancestries.columns:
-                agent_cols.append(column.name)
-                agent_types.append(column.type)
-            self.db.table_column_check(self.ancestries.table_name, agent_cols, agent_types)
+                ancestry_cols.append(column.name)
+                ancestry_types.append(column.type)
+            self.db.table_column_check(self.ancestries.table_name, ancestry_cols, ancestry_types)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
