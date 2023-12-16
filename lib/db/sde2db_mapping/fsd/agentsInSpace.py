@@ -6,87 +6,53 @@ from lib.logger import logger
 
 class agentsInSpace(mapper):
     
-    def __init__(self, db_path, yaml, log):
-        self.db_path = db_path
-        self.yaml = yaml
-        self.log = log
-        self.db = db_utils(self.log, self.db_path, None)
-        
-        self.table_agents = 'agents_in_space'
-        self.table_agents_pk = 'agent_id'
+    def __init__(self, db: db_utils, log:logger):
+        self.db = db
+        self.log = log        
+        self.agents = table_agentsInSpace()
 
 
-    def run(self):
-        try:
-            self.db.db_check()
-            self.db.db_connect()
-            
-            self.check_tables_and_columns()
-            self.sync()
-            
-            self.db.db_commit()
-            self.db.db_disconnect()
-        except Exception as e:
-            method_name = traceback.extract_stack(None, 2)[0][2]
-            self.log.critical(f'ERROR in {method_name}: {e}')
-            
-    
-    #go row by row and fill each table
-    def sync(self):
-        try:
-            self.db.table_start_sync(self.table_agents)
-            for row in self.yaml:
-                # add row to agents table
-                self.add_agent(self.table_agents, self.table_agents_pk, row, self.yaml[row])
-            self.db.table_finish_sync(self.table_agents)
-        except Exception as e:
-            method_name = traceback.extract_stack(None, 2)[0][2]
-            self.log.critical(f'ERROR in {method_name}: {e}')
-    
-
-    # check all class-cpecific tables and columns
-    def check_tables_and_columns(self):
+    # check if all tables are present
+    def check(self):
         try:
             # agents
-            if not self.db.table_check(self.table_agents):
-                self.db.table_create(self.table_agents)
-            columns, types = self.get_agent_columns()
-            self.db.table_column_check(self.table_agents, columns, types)  
+            if not self.db.table_check(self.agents.table_name):
+                self.db.table_create(self.agents.table_name)
+            agent_cols = [] 
+            agent_types = []
+            for column in self.agents.columns:
+                agent_cols.append(column.name)
+                agent_types.append(column.type)
+            self.db.table_column_check(self.agents.table_name, agent_cols, agent_types)
+        except Exception as e:
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            self.log.critical(f'ERROR in {method_name}: {e}')
+
+    
+    # start the import
+    def start(self):
+        try:
+            self.db.table_start_sync(self.agents.table_name)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
             
-            
-    # get yaml value by path or fill None if not found
-    def yaml_value_extract(self, yaml_row, path):
-        path_array = path.split('/')
-        result = yaml_row
-        try:
-            for node in path_array:
-                result = result.get(node)
-            return result
-        except (KeyError, TypeError):
-            return None
-        
 
-    # get the list of columns in table: agents
-    def get_agent_columns(self, columns = [], types = []):
-        columns.append('agent_id')
-        types.append('NUMBER')
-        
-        columns.append('dungeon_id')
-        types.append('NUMBER')
-        
-        columns.append('solar_system_id')
-        types.append('NUMBER')
-        
-        columns.append('spawn_point_id')
-        types.append('NUMBER')
-        
-        columns.append('type_id')
-        types.append('NUMBER')
-        
-        return columns, types    
+    def run(self, id, row):
+        try:
+            self.add_agent(self.agents.table_name, self.agents.table_pk, id, row) 
+        except Exception as e:
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            self.log.critical(f'ERROR in {method_name}: {e}')
+    
+    
+    # complete the import
+    def finish(self):
+        try:
+            self.db.table_finish_sync(self.agents.table_name)
+        except Exception as e:
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            self.log.critical(f'ERROR in {method_name}: {e}')  
          
     
     # add or update an agent        
@@ -95,25 +61,32 @@ class agentsInSpace(mapper):
             columns = []
             values = []
             
-            columns.append('agent_id')
-            values.append(id)
-            
-            columns.append('dungeon_id')
-            values.append(self.yaml_value_extract(row, 'dungeonID'))
-            
-            columns.append('solar_system_id')
-            values.append(self.yaml_value_extract(row, 'solarSystemID'))
-            
-            columns.append('spawn_point_id')
-            values.append(self.yaml_value_extract(row, 'spawnPointID'))
-            
-            columns.append('type_id')
-            values.append(self.yaml_value_extract(row, 'typeID'))
-            
+            for column in self.agents.columns:
+                value = self.yaml_value_extract(id, row, column.path)
+                columns.append(column.name)
+                values.append(value)
             self.db.record_add_or_replace(table, pk, id, columns, values)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
     
     
+class col:
+    def __init__(self, name, type = 'TEXT', path = None):
+        self.name = name
+        self.type = type
+        self.path = path
+    
 
+class table_agentsInSpace:
+    def __init__(self):
+        self.table_name = 'agents_in_space'
+        self.table_pk = 'agent_id'
+        self.columns = []
+        
+        self.columns.append(col('agent_id',         'NUMBER', '#root'))
+        self.columns.append(col('dungeon_id',       'NUMBER', 'dungeonID'))
+        self.columns.append(col('solar_system_id',  'NUMBER', 'solarSystemID'))
+        self.columns.append(col('spawn_point_id',   'NUMBER', 'spawnPointID'))
+        self.columns.append(col('type_id',          'NUMBER', 'typeID'))
+        
