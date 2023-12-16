@@ -6,106 +6,54 @@ from lib.logger import logger
 
 class ancestries(mapper):
     
-    def __init__(self, db_path, yaml, log):
-        self.db_path = db_path
-        self.yaml = yaml
+    def __init__(self, db: db_utils, log:logger):
+        self.db = db
         self.log = log
-        self.db = db_utils(self.log, self.db_path, None)
-        
-        self.table_ancestries = 'ancestries'
-        self.table_ancestries_pk = 'ancestry_id'
+        self.ancestries = table_ancestries()
 
 
-    def run(self):
-        try:
-            self.db.db_check()
-            self.db.db_connect()
-            
-            self.check_tables_and_columns()
-            self.sync()
-            
-            self.db.db_commit()
-            self.db.db_disconnect()
-        except Exception as e:
-            method_name = traceback.extract_stack(None, 2)[0][2]
-            self.log.critical(f'ERROR in {method_name}: {e}')
-    
-    
-    #go row by row and fill each table
-    def sync(self):
-        try:
-            self.db.table_start_sync(self.table_ancestries)
-            for row in self.yaml:
-                # add row to ancestries table
-                self.add_ancestry(self.table_ancestries, self.table_ancestries_pk, row, self.yaml[row])
-            self.db.table_finish_sync(self.table_ancestries)
-        except Exception as e:
-            method_name = traceback.extract_stack(None, 2)[0][2]
-            self.log.critical(f'ERROR in {method_name}: {e}')
-    
-
-    # check all class-cpecific tables and columns
-    def check_tables_and_columns(self):
+    # check if all tables are present
+    def check(self):
         try:
             # ancestries
-            if not self.db.table_check(self.table_ancestries):
-                self.db.table_create(self.table_ancestries)
-            columns, types = self.get_ancestries_columns()
-            self.db.table_column_check(self.table_ancestries, columns, types)  
+            if not self.db.table_check(self.ancestries.table_name):
+                self.db.table_create(self.ancestries.table_name)
+            agent_cols = [] 
+            agent_types = []
+            for column in self.ancestries.columns:
+                agent_cols.append(column.name)
+                agent_types.append(column.type)
+            self.db.table_column_check(self.ancestries.table_name, agent_cols, agent_types)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
-            
-            
-    # get yaml value by path or fill None if not found
-    def yaml_value_extract(self, yaml_row, path):
-        path_array = path.split('/')
-        result = yaml_row
+    
+    
+    # start the import
+    def start(self):
         try:
-            for node in path_array:
-                result = result.get(node)
-            return result
-        except (KeyError, TypeError):
-            return None
+            self.db.table_start_sync(self.ancestries.table_name)
+        except Exception as e:
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            self.log.critical(f'ERROR in {method_name}: {e}')
     
 
-    # get the list of columns in table: ancestries
-    def get_ancestries_columns(self, columns = [], types = []):
-        columns.append('ancestry_id')
-        types.append('NUMBER')
-        
-        columns.append('bloodline_id')
-        types.append('NUMBER')
-        
-        columns.append('icon_id')
-        types.append('NUMBER')
-        
-        columns.append('name')
-        types.append('TEXT')
-        
-        columns.append('short_desc')
-        types.append('TEXT')
-        
-        columns.append('desc')
-        types.append('TEXT')
-        
-        columns.append('charisma')
-        types.append('NUMBER')
-        
-        columns.append('intelligence')
-        types.append('NUMBER')
-        
-        columns.append('memory')
-        types.append('NUMBER')
-        
-        columns.append('perception')
-        types.append('NUMBER')
-        
-        columns.append('willpower')
-        types.append('NUMBER')
-        
-        return columns, types    
-         
+    def run(self, id, row):
+        try:
+            self.add_ancestry(self.ancestries.table_name, self.ancestries.table_pk, id, row)
+        except Exception as e:
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            self.log.critical(f'ERROR in {method_name}: {e}')
+    
+    
+    # complete the import
+    def finish(self):
+        try:
+            self.db.table_finish_sync(self.ancestries.table_name)
+        except Exception as e:
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            self.log.critical(f'ERROR in {method_name}: {e}') 
+
     
     # add or update an ancestry        
     def add_ancestry(self, table, pk, id, row):
@@ -113,43 +61,37 @@ class ancestries(mapper):
             columns = []
             values = []
             
-            columns.append('ancestry_id')
-            values.append(id)
-            
-            columns.append('bloodline_id')
-            values.append(self.yaml_value_extract(row, 'bloodlineID'))
-            
-            columns.append('icon_id')
-            values.append(self.yaml_value_extract(row, 'iconID'))
-            
-            columns.append('name')
-            values.append(self.yaml_value_extract(row, 'nameID/en'))
-            
-            columns.append('short_desc')
-            values.append(self.yaml_value_extract(row, 'shortDescription'))
-            
-            columns.append('desc')
-            values.append(self.yaml_value_extract(row, 'descriptionID/en'))
-            
-            columns.append('charisma')
-            values.append(self.yaml_value_extract(row, 'charisma'))
-            
-            columns.append('intelligence')
-            values.append(self.yaml_value_extract(row, 'intelligence'))
-            
-            columns.append('memory')
-            values.append(self.yaml_value_extract(row, 'memory'))
-            
-            columns.append('perception')
-            values.append(self.yaml_value_extract(row, 'perception'))
-            
-            columns.append('willpower')
-            values.append(self.yaml_value_extract(row, 'willpower'))
-            
+            for column in self.ancestries.columns:
+                value = self.yaml_value_extract(id, row, column.path)
+                columns.append(column.name)
+                values.append(value)
             self.db.record_add_or_replace(table, pk, id, columns, values)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
     
     
+class col:
+    def __init__(self, name, type = 'TEXT', path = None):
+        self.name = name
+        self.type = type
+        self.path = path
+    
 
+class table_ancestries:
+    def __init__(self):
+        self.table_name = 'ancestries'
+        self.table_pk = 'ancestry_id'
+        self.columns = []
+        
+        self.columns.append(col('ancestry_id',  'NUMBER', '#root'))
+        self.columns.append(col('bloodline_id', 'NUMBER', 'bloodlineID'))
+        self.columns.append(col('icon_id',      'NUMBER', 'iconID'))
+        self.columns.append(col('name_en',      'TEXT', 'nameID/en'))
+        self.columns.append(col('short_desc_en','TEXT', 'shortDescription'))
+        self.columns.append(col('desc_en',      'TEXT', 'descriptionID/en'))
+        self.columns.append(col('charisma',     'NUMBER', 'charisma'))
+        self.columns.append(col('intelligence', 'NUMBER', 'intelligence'))
+        self.columns.append(col('memory',       'NUMBER', 'memory'))
+        self.columns.append(col('perception',   'NUMBER', 'perception'))
+        self.columns.append(col('willpower',    'NUMBER', 'willpower'))
