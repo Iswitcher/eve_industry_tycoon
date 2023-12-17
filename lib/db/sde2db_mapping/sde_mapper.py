@@ -43,10 +43,11 @@ class mapper(ABC):
         result = yaml_row
         try:
             for node in path_array:
+                if result == None:
+                    return None
                 if node == '#root':
                     return id
                 result = result.get(node)
             return result
         except (KeyError, TypeError):
             return None
-    
