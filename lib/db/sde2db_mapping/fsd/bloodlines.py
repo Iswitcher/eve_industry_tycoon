@@ -10,9 +10,6 @@ class bloodlines(mapper):
         self.db = db
         self.log = log
         self.bloodlines = table_bloodlines()
-        
-        self.table_bloodlines = 'bloodlines'
-        self.table_bloodlines_pk = 'bloodline_id'
 
 
     # check if all tables are present
