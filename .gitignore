@@ -6,3 +6,6 @@ __pycache__
 
 # ignore resources
 resources/
+
+# ignore logs
+logs/

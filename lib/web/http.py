@@ -5,12 +5,12 @@ import traceback
 from lib.logger import logger
 
 class http:
-    
-    def __init__(self, url=None):
-        self.log = logger()
+
+    def __init__(self, logger, url=None):
+        self.log = logger
         self.url = url
-        
-    
+
+
     # http get and return text
     def http_get(self, url):
         try:
@@ -23,7 +23,7 @@ class http:
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
-            
+
 
     def http_get_bytes(self, url):
         try:

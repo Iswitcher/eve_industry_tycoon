@@ -8,12 +8,13 @@ from logic import logic
 
 class gui_main:
 
-    def __init__(self, title, height, width):
-        self.title = "EvE Industry Tycoon"
-        self.height = 600
-        self.width = 800
+    def __init__(self, log, title:str, width:int, height:int):
+        self.log = log
+        self.title = title
+        self.width = width
+        self.height = height
         self.window = tk.Tk()
-        self.logic = logic()
+        self.logic = logic(log)
 
 
     def run_window(self):

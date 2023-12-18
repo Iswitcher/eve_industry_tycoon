@@ -8,19 +8,19 @@ from lib.web.http import http
 
 
 class sde_loader:
-    
+
     def __init__(self, log):
         self.log = log
         self.cfg = cfg_reader()
-        self.http = http()
+        self.http = http(log)
         self.sde_config_path = 'config/sde_import.json'
         self.sde_endpoints = {}
 
         self.sde_hash = 'resources/sde_checksum.txt'
         self.sde_folder = 'resources/sde/'
         self.sde_zip_path = 'resources/sde/sde.zip'
-        
-    
+
+
     # main method. Checks and downloads new SDE archive
     def sde_update(self):
         try:
@@ -35,12 +35,12 @@ class sde_loader:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
 
-    
+
     # get sde config JSON
     def sde_config_get(self):
         self.sde_endpoints = self.cfg.get_config_json(self.sde_config_path)
-        
-    
+
+
     # fetch local saved sde hash (if exists)
     def sde_hash_old_load(self):
         try:
@@ -50,8 +50,8 @@ class sde_loader:
             return checksum
         except Exception as e:
             return ''
-    
-    
+
+
     # fetch current hash from url
     def sde_hash_new_get(self):
         try:
@@ -61,8 +61,8 @@ class sde_loader:
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
-        
-    
+
+
     # check if sde hash is obsolete
     def is_sde_hash_obsolete(self, old, new):
         try:
@@ -73,8 +73,8 @@ class sde_loader:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
             return False
-           
-        
+
+
     # save the checksum
     def sde_hash_new_save(self, checksum):
         try:
@@ -84,8 +84,8 @@ class sde_loader:
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
-        
-        
+
+
     # sde download
     def sde_download_zip(self):
         try:
@@ -98,14 +98,14 @@ class sde_loader:
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
-            
-            
+
+
     # create sde dir if not exists
     def sde_dir_check(self):
         if not os.path.exists(self.sde_folder):
             os.makedirs(self.sde_folder)
-            
-            
+
+
     # clean old SDE folder if needed
     def sde_dir_clean(self):
         try:
