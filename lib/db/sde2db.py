@@ -48,7 +48,8 @@ class sde2db:
     def sde_yaml_read(self, path):
         try:
             with open(path, 'r', encoding="utf-8") as yaml_file:
-                yaml_data = yaml.safe_load(yaml_file)
+                # yaml_data = yaml.safe_load(yaml_file)
+                yaml_data = yaml.load(yaml_file, Loader=yaml.CBaseLoader)
                 return yaml_data
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
@@ -61,6 +62,8 @@ class sde2db:
             t_start = time.time()
             self.log.info(f'Start converting: {path}')
             yaml_file = self.sde_yaml_read(path)
+            t = round(time.time() - t_start, 4)
+            self.log.info(f'yaml: {path} is read, {t}s passed.')
             
             module = self.sde_abs_class_import(path)
             module_instance = module(self.db, self.log)
