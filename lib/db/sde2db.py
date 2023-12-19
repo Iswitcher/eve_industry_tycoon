@@ -48,7 +48,6 @@ class sde2db:
     def sde_yaml_read(self, path):
         try:
             with open(path, 'r', encoding="utf-8") as yaml_file:
-                # yaml_data = yaml.safe_load(yaml_file)
                 yaml_data = yaml.load(yaml_file, Loader=yaml.CBaseLoader)
                 return yaml_data
         except Exception as e:
