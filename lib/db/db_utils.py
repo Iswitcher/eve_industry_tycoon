@@ -15,6 +15,16 @@ class db_utils:
         self.sync_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.future_date = datetime(9999, 12, 31, 23, 59, 59, 0)
     
+    
+    # refresh sync_date
+    def refresh_sync_date(self):
+        try:
+            self.sync_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        except Exception as e:
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            self.log.critical(f'ERROR in {method_name}: {e}')
+    
+    
     # check if db exists, create if not
     def db_check(self):
         if not os.path.exists(self.db_path):
@@ -32,6 +42,7 @@ class db_utils:
         try:
             self.db_check()
             self.db_conn = sqlite3.connect(self.db_path)
+            self.refresh_sync_date()
             self._cursor = self.db_conn.cursor()
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
