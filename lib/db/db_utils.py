@@ -12,6 +12,8 @@ class db_utils:
         self.db_conn = conn
         self._cursor = _cursor
         
+        self.sync_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        self.future_date = datetime(9999, 12, 31, 23, 59, 59, 0)
     
     # check if db exists, create if not
     def db_check(self):
@@ -182,10 +184,10 @@ class db_utils:
         try:
             q = f"""
                 UPDATE {table}
-                SET end_date = DATETIME('now'),
+                SET end_date = DATETIME('{self.sync_date}'),
                     is_updated = 1
                 WHERE {key} = {value}
-                AND end_date > DATETIME('now')
+                AND end_date > DATETIME('{self.sync_date}')
                 """
             self._cursor.execute(q)
         except Exception as e:
@@ -193,13 +195,14 @@ class db_utils:
             self.log.critical(f'ERROR in {method_name}: {e}')
     
     
+    # mark the record as updated
     def record_set_is_updated(self, table, key, value):
         try:
             q = f"""
                 UPDATE {table}
                 SET is_updated = 1
                 WHERE {key} = {value}
-                AND end_date > DATETIME('now')
+                AND end_date > DATETIME('{self.sync_date}')
                 """
             self._cursor.execute(q)
         except Exception as e:
@@ -220,9 +223,9 @@ class db_utils:
             
             # add dates
             columns.append("start_date")
-            values.append(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+            values.append(self.sync_date)
             columns.append("end_date")
-            values.append(datetime(9999, 12, 31, 23, 59, 59, 0))
+            values.append(self.future_date)
             
             q_obj = self.get_insert_query(table, columns, values)
             self._cursor.execute(q_obj['query'], q_obj['values']) 
@@ -246,7 +249,7 @@ class db_utils:
             q = f"""
                 UPDATE {table}
                 SET is_updated = 0
-                WHERE end_date > DATETIME('now')
+                WHERE end_date > DATETIME('{self.sync_date}')
                 """
             self._cursor.execute(q)
         except Exception as e:
@@ -260,9 +263,9 @@ class db_utils:
             q = f"""
                 UPDATE {table}
                 SET is_updated = 1, 
-                    end_date = DATETIME('now')
+                    end_date = DATETIME('{self.sync_date}')
                 WHERE is_updated = 0
-                AND end_date > DATETIME('now')
+                AND end_date > DATETIME('{self.sync_date}')
                 """
             self._cursor.execute(q)
         except Exception as e:
