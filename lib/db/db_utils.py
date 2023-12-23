@@ -148,12 +148,9 @@ class db_utils:
     def record_add_or_replace(self, table, id_name, id, columns, values):
         try:
             hash = self.get_record_hash_md5(values)
-            old_hash = self.get_old_record_hash(table, id_name, id)
-            if hash == old_hash:
+            if hash == self.get_old_record_hash(table, hash):
                 self.record_set_is_updated(table, id_name, id)
                 return
-            if old_hash != None:
-                self.record_close(table, id_name, id)
             self.record_add(table, hash, columns, values)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
@@ -172,12 +169,12 @@ class db_utils:
     
     
     # get old record by id
-    def get_old_record_hash(self, table, key, value):
+    def get_old_record_hash(self, table, hash):
         try:
             q = f"""
                 SELECT hash
                 FROM {table}
-                WHERE {key} = {value}
+                WHERE hash = '{hash}'
                 AND end_date > DATE('now')
                 """
             self._cursor.execute(q)
@@ -198,7 +195,7 @@ class db_utils:
                 SET end_date = DATETIME('{self.sync_date}'),
                     is_updated = 1
                 WHERE {key} = {value}
-                AND end_date > DATETIME('{self.sync_date}')
+                AND end_date > DATETIME('now')
                 """
             self._cursor.execute(q)
         except Exception as e:
@@ -213,7 +210,7 @@ class db_utils:
                 UPDATE {table}
                 SET is_updated = 1
                 WHERE {key} = {value}
-                AND end_date > DATETIME('{self.sync_date}')
+                AND end_date > DATETIME('now')
                 """
             self._cursor.execute(q)
         except Exception as e:
@@ -260,7 +257,7 @@ class db_utils:
             q = f"""
                 UPDATE {table}
                 SET is_updated = 0
-                WHERE end_date > DATETIME('{self.sync_date}')
+                WHERE end_date > DATETIME('now')
                 """
             self._cursor.execute(q)
         except Exception as e:
