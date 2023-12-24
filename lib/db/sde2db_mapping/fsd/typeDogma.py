@@ -87,7 +87,7 @@ class typeDogma(mapper):
                     columns.append(column.name)
                     values.append(value)
                 self.db.record_add_or_replace(t_name, t_pk, id, columns, values)
-            self.log.info(f'item {id} processed for {table_obj.table_name}')
+            # self.log.info(f'item {id} processed for {table_obj.table_name}')
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')

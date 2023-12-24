@@ -6,6 +6,36 @@
 		"resources/sde/fsd/agentsInSpace.yaml",
 		"resources/sde/fsd/ancestries.yaml",
 		"resources/sde/fsd/bloodlines.yaml",
-		"resources/sde/fsd/blueprints.yaml"
+		"resources/sde/fsd/blueprints.yaml",
+		"resources/sde/fsd/categoryIDs.yaml",
+		"resources/sde/fsd/certificates.yaml",
+		"resources/sde/fsd/characterAttributes.yaml",
+		"resources/sde/fsd/contrabandTypes.yaml",
+		"resources/sde/fsd/controlTowerResources.yaml",
+		"resources/sde/fsd/corporationActivities.yaml",
+		"resources/sde/fsd/dogmaAttributeCategories.yaml",
+		"resources/sde/fsd/dogmaAttributes.yaml",
+		"resources/sde/fsd/dogmaEffects.yaml",
+		"resources/sde/fsd/factions.yaml",
+		"resources/sde/fsd/graphicIDs.yaml",
+		"resources/sde/fsd/groupIDs.yaml",
+		"resources/sde/fsd/iconIDs.yaml",
+		"resources/sde/fsd/marketGroups.yaml",
+		"resources/sde/fsd/metaGroups.yaml",
+		"resources/sde/fsd/npcCorporationDivisions.yaml",
+		"resources/sde/fsd/npcCorporations.yaml",
+		"resources/sde/fsd/planetSchematics.yaml",
+		"resources/sde/fsd/races.yaml",
+		"resources/sde/fsd/researchAgents.yaml",
+		"resources/sde/fsd/skinLicenses.yaml",
+		"resources/sde/fsd/skinMaterials.yaml",
+		"resources/sde/fsd/skins.yaml",
+		"resources/sde/fsd/stationOperations.yaml",
+		"resources/sde/fsd/stationServices.yaml",
+		
+		
+		"resources/sde/fsd/typeDogma.yaml",
+
+		"resources/sde/fsd/typeMaterials.yaml"
 	]
 }
