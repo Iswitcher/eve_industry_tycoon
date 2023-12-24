@@ -128,7 +128,6 @@ class table_effects:
         self.columns.append(col('resistance_attribute_id',      'NUMBER', 'resistanceAttributeID'))
         self.columns.append(col('distribution',                 'NUMBER', 'distribution'))
         self.columns.append(col('effect_category',              'NUMBER', 'effectCategory'))
-        self.columns.append(col('effect_id',                    'NUMBER', 'effectID'))
         self.columns.append(col('effect_name',                  'TEXT', 'effectName'))
         self.columns.append(col('effect_desc',                  'TEXT', 'descriptionID/en'))
         self.columns.append(col('guid',                         'TEXT', 'guid'))
