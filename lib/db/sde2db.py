@@ -72,8 +72,13 @@ class sde2db:
             
             module_instance.check()
             module_instance.start()
+            cnt = 0
             for row in yaml_file:
                 module_instance.run(row, yaml_file[row])
+                if cnt == 1000:
+                    self.db.db_commit()
+                    cnt = 0
+                cnt += 1
             module_instance.finish()
             
             self.db.db_commit()

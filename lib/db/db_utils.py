@@ -14,6 +14,8 @@ class db_utils:
         
         self.sync_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.future_date = datetime(9999, 12, 31, 23, 59, 59, 0)
+        
+        self.hashset = []
     
     
     # refresh sync_date
@@ -147,11 +149,12 @@ class db_utils:
     # does nothing if the record is unchanged
     def record_add_or_replace(self, table, id_name, id, columns, values):
         try:
-            hash = self.get_record_hash_md5(values)
-            if hash == self.get_old_record_hash(table, hash):
+            h = self.get_record_hash_md5(values)
+            # if hash == self.get_old_record_hash(table, h):
+            if self.is_hash_in_hashset(h) == True:
                 self.record_set_is_updated(table, id_name, id)
                 return
-            self.record_add(table, hash, columns, values)
+            self.record_add(table, h, columns, values)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
@@ -169,12 +172,12 @@ class db_utils:
     
     
     # get old record by id
-    def get_old_record_hash(self, table, hash):
+    def get_old_record_hash(self, table, h):
         try:
             q = f"""
                 SELECT hash
                 FROM {table}
-                WHERE hash = '{hash}'
+                WHERE hash = '{h}'
                 AND end_date > DATE('now')
                 """
             self._cursor.execute(q)
@@ -260,6 +263,7 @@ class db_utils:
                 WHERE end_date > DATETIME('now')
                 """
             self._cursor.execute(q)
+            self.table_get_active_hashset(table)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
@@ -276,6 +280,35 @@ class db_utils:
                 AND end_date > DATETIME('{self.sync_date}')
                 """
             self._cursor.execute(q)
+        except Exception as e:
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            self.log.critical(f'ERROR in {method_name}: {e}')
+            
+    
+    # get hashes for all active records
+    def table_get_active_hashset(self, table):
+        try:
+            self.hashset.clear()
+            q = f"""
+                SELECT hash
+                FROM {table}
+                WHERE end_date > DATE('now')
+                """
+            self._cursor.execute(q)
+            result = self._cursor.fetchall()
+            self.hashset = [row[0] for row in result]
+        except Exception as e:
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            self.log.critical(f'ERROR in {method_name}: {e}')
+            
+            
+    # check if hash is present in table hashset
+    def is_hash_in_hashset(self, h):
+        try:
+            for item in self.hashset:
+                if h == item:
+                    return True
+            return False
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
