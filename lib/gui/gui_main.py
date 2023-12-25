@@ -41,9 +41,7 @@ class gui_main:
         # add SDE submenu
         sde_menu = tk.Menu(sync_menu, tearoff=0)
         sde_menu.add_command(label="SDE Download", command=lambda: self.menu_update_sde())
-        # add progressbar
-        self.progressbar = ttk.Progressbar(orient="horizontal")
-        self.progressbar.pack(fill='x', side="bottom", padx=6, pady=6)
+
         sde_menu.add_command(label="Parse SDE to db", command=lambda: self.menu_sde_2_db())
 
         sync_menu.add_cascade(label="Static data (SDE)", menu=sde_menu)
@@ -95,17 +93,42 @@ class gui_main:
 
 
     def set_layout(self, window):
+        status = tk.Frame(master=window, height=10, bg="gray")
+        status.pack(fill=tk.BOTH, side=tk.BOTTOM, expand=False)
+        self.set_status_panel(status)
+        
         utils = tk.Frame(master=window, height=50, bg="gray")
         utils.pack(fill=tk.BOTH, side=tk.TOP, expand=False)
-        utils_label = tk.Label(master=utils, text="App tools panel")
-        utils_label.place(x=0, y=0)
+        self.set_utils_panel(utils)
         
         navigation = tk.Frame(master=window, width=50, bg="blue")
         navigation.pack(fill=tk.BOTH, side=tk.LEFT, expand=False)
-        nav_label = tk.Label(master=navigation, text="Nav panel", wraplength=1)
-        nav_label.place(x=0, y=0)
+        self.set_nav_panel(navigation)
         
         main = tk.Frame(master=window, height=600, width=800, bg="white")
         main.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
-        nav_label = tk.Label(master=main, text="Main panel")
+        self.set_main_panel(main)
+    
+    
+    def set_status_panel(self, frame):
+        # add progressbar
+        self.progressbar = ttk.Progressbar(orient="horizontal", master=frame)
+        self.progressbar.pack(fill='x', side="right", padx=6, pady=3)
+        
+        utils_label = tk.Label(master=frame, text="Status panel")
+        utils_label.place(x=0, y=0) 
+    
+    
+    def set_utils_panel(self, frame):
+        utils_label = tk.Label(master=frame, text="App tools panel")
+        utils_label.place(x=0, y=0) 
+        
+        
+    def set_nav_panel(self, frame):
+        nav_label = tk.Label(master=frame, text="Nav panel", wraplength=1)
+        nav_label.place(x=0, y=0)
+        
+        
+    def set_main_panel(self, frame):
+        nav_label = tk.Label(master=frame, text="Main panel")
         nav_label.place(x=0, y=0)
