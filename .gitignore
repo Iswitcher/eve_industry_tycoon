@@ -9,3 +9,9 @@ resources/
 
 # ignore logs
 logs/
+
+# ignore vscode shit
+.vscode/
+
+# ignore venv
+venv/
