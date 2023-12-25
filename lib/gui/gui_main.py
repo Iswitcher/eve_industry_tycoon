@@ -18,7 +18,7 @@ class gui_main:
 
 
     def run_window(self):
-
+        self.window.minsize(800, 600)
         self.window.title(self.title)
         self.window.geometry(f"{self.width}x{self.height}")
         self.create_menubar(self.window)
