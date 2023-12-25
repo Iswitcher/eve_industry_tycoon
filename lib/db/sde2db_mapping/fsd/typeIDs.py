@@ -69,7 +69,7 @@ class typeIDs(mapper):
 
     def run(self, id, row):
         try:
-            self.log.info(f'adding {id}')
+            # self.log.info(f'adding {id}')
             self.add_type(self.types, id, row)
             self.add_trait_type(self.trait_types, id, row, 'traits/types')
             self.add_trait(self.trait_roles, id, row, 'traits/roleBonuses')
