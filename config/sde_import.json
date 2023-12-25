@@ -32,10 +32,10 @@
 		"resources/sde/fsd/skins.yaml",
 		"resources/sde/fsd/stationOperations.yaml",
 		"resources/sde/fsd/stationServices.yaml",
-		
-		
+		"resources/sde/fsd/tournamentRuleSets.yaml",
+		"resources/sde/fsd/translationLanguages.yaml",
 		"resources/sde/fsd/typeDogma.yaml",
-
+		"resources/sde/fsd/typeIDs.yaml",
 		"resources/sde/fsd/typeMaterials.yaml"
 	]
 }
