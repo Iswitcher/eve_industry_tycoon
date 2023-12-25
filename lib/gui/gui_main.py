@@ -22,6 +22,8 @@ class gui_main:
         self.window.title(self.title)
         self.window.geometry(f"{self.width}x{self.height}")
         self.create_menubar(self.window)
+        
+        self.set_layout(self.window)
 
         self.window.mainloop()
 
@@ -90,3 +92,20 @@ class gui_main:
         # stop the progressbar
         self.progressbar.stop()
         messagebox.showinfo("Parsing Complete", "YAML files imported")
+
+
+    def set_layout(self, window):
+        utils = tk.Frame(master=window, height=50, bg="gray")
+        utils.pack(fill=tk.BOTH, side=tk.TOP, expand=False)
+        utils_label = tk.Label(master=utils, text="App tools panel")
+        utils_label.place(x=0, y=0)
+        
+        navigation = tk.Frame(master=window, width=50, bg="blue")
+        navigation.pack(fill=tk.BOTH, side=tk.LEFT, expand=False)
+        nav_label = tk.Label(master=navigation, text="Nav panel", wraplength=1)
+        nav_label.place(x=0, y=0)
+        
+        main = tk.Frame(master=window, height=600, width=800, bg="white")
+        main.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
+        nav_label = tk.Label(master=main, text="Main panel")
+        nav_label.place(x=0, y=0)
