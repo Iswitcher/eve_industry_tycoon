@@ -93,42 +93,114 @@ class gui_main:
 
 
     def set_layout(self, window):
-        status = tk.Frame(master=window, height=10, bg="gray")
-        status.pack(fill=tk.BOTH, side=tk.BOTTOM, expand=False)
-        self.set_status_panel(status)
+        # add bottom area for status text and progressbars
+        status_frame = self.init_frame_status(window)
+        self.populate_frame_status(status_frame)
+
+        # universal tools?
+        utils_frame = self.init_frame_utils(window)
+        self.populate_frame_utils(utils_frame)
         
-        utils = tk.Frame(master=window, height=50, bg="gray")
-        utils.pack(fill=tk.BOTH, side=tk.TOP, expand=False)
-        self.set_utils_panel(utils)
+        # navigation frame
+        nav_frame = self.init_frame_navigation(window)
+        self.populate_frame_navigation(nav_frame)
         
-        navigation = tk.Frame(master=window, width=50, bg="blue")
-        navigation.pack(fill=tk.BOTH, side=tk.LEFT, expand=False)
-        self.set_nav_panel(navigation)
+        # main area, content depends on selected nav menu
+        main = self.init_frame_main(window)
+        self.populate_frame_main(main)
+
+
+    def init_frame_status(self, parent):
+        frame = tk.Frame(master=parent)
+        frame.config(height=10)
+        frame.config(highlightbackground="gray")
+        frame.config(highlightthickness=1)
         
-        main = tk.Frame(master=window, height=600, width=800, bg="white")
-        main.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
-        self.set_main_panel(main)
-    
-    
-    def set_status_panel(self, frame):
+        frame.pack_configure(fill=tk.BOTH)
+        frame.pack_configure(side=tk.BOTTOM)
+        frame.pack_configure(expand=False)
+        frame.pack
+        return frame
+
+
+    def init_frame_utils(self, parent):
+        frame = tk.Frame(master=parent)
+        frame.config(height=50)
+        frame.config(bg="gray")
+        frame.config(highlightbackground="gray")
+        frame.config(highlightthickness=1)
+        
+        frame.pack_configure(fill=tk.BOTH)
+        frame.pack_configure(side=tk.TOP)
+        frame.pack_configure(expand=False)
+        frame.pack
+        return frame
+
+
+    def init_frame_navigation(self, parent):
+        frame = tk.Frame(master=parent)
+        frame.config(width=50)
+        frame.config(highlightbackground="gray")
+        frame.config(highlightthickness=1)
+        
+        frame.pack_configure(fill=tk.BOTH)
+        frame.pack_configure(side=tk.LEFT)
+        frame.pack_configure(expand=False)
+        frame.pack
+        return frame
+
+
+    def init_frame_main(self, parent):
+        frame = tk.Frame(master=parent)
+        frame.config(height=600)
+        frame.config(width=800)
+        frame.config(highlightbackground="gray")
+        frame.config(highlightthickness=1)
+        
+        frame.pack_configure(fill=tk.BOTH)
+        frame.pack_configure(side=tk.LEFT)
+        frame.pack_configure(expand=True)
+        frame.pack
+        return frame
+
+
+    def populate_frame_status(self, frame):
         # add progressbar
         self.progressbar = ttk.Progressbar(orient="horizontal", master=frame)
         self.progressbar.pack(fill='x', side="right", padx=6, pady=3)
         
         utils_label = tk.Label(master=frame, text="Status panel")
         utils_label.place(x=0, y=0) 
-    
-    
-    def set_utils_panel(self, frame):
+
+
+    def populate_frame_utils(self, frame):
         utils_label = tk.Label(master=frame, text="App tools panel")
         utils_label.place(x=0, y=0) 
+
+
+    def populate_frame_navigation(self, frame):
+        market_btn = tk.Button(frame,text='Market')
+        market_btn.pack(fill='x', side='top')
         
+        contracts_btn = tk.Button(frame,text='Contracts')
+        contracts_btn.pack(fill='x', side='top')
         
-    def set_nav_panel(self, frame):
-        nav_label = tk.Label(master=frame, text="Nav panel", wraplength=1)
-        nav_label.place(x=0, y=0)
+        industry_btn = tk.Button(frame,text='Industry')
+        industry_btn.pack(fill='x', side='top')
         
+        assets_btn = tk.Button(frame,text='Assets')
+        assets_btn.pack(fill='x', side='top')
         
-    def set_main_panel(self, frame):
+        map_btn = tk.Button(frame,text='Map')
+        map_btn.pack(fill='x', side='top')
+        
+        debug = tk.Button(frame,text='Debug')
+        debug.pack(fill='x', side='bottom')
+
+
+    def populate_frame_main(self, frame):
         nav_label = tk.Label(master=frame, text="Main panel")
         nav_label.place(x=0, y=0)
+        
+        textbox = tk.Text(master=frame)
+        textbox.pack(fill='x', side='bottom')
