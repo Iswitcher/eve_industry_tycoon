@@ -1,0 +1,14 @@
+{
+    "icons": {
+        "url_regex": "https.+Icons.zip",
+        "res_path": "resources/graphics/"
+    },
+    "renders": {
+        "url_regex": "https.+Renders.zip",
+        "res_path": "resources/graphics/"
+    },
+    "types": {
+        "url_regex": "https.+Icons.zip",
+        "res_path": "resources/graphics/"
+    }
+}
