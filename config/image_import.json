@@ -3,15 +3,15 @@
     "graphic_flies": {
         "icons": {
             "url_regex": "https://web.ccpgamescdn.com/.+Icons.zip(?=\">)",
-            "res_path": "resources/graphics/"
+            "res_path": "resources/graphics/icons"
         },
         "renders": {
             "url_regex": "https://web.ccpgamescdn.com/.+Renders.zip(?=\">)",
-            "res_path": "resources/graphics/"
+            "res_path": "resources/graphics/renders"
         },
         "types": {
             "url_regex": "https://web.ccpgamescdn.com/.+Icons.zip(?=\">)",
-            "res_path": "resources/graphics/"
+            "res_path": "resources/graphics/types"
         }
     }
 }
