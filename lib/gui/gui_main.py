@@ -40,12 +40,12 @@ class gui_main:
         sync_menu = tk.Menu(menubar, tearoff=0)
         # add SDE submenu
         sde_menu = tk.Menu(sync_menu, tearoff=0)
-        sde_menu.add_command(label="SDE Download", command=lambda: self.menu_update_sde())
+        sde_menu.add_command(label="Download yaml", command=lambda: self.menu_update_sde())
 
-        sde_menu.add_command(label="Parse SDE to db", command=lambda: self.menu_sde_2_db())
+        sde_menu.add_command(label="Parse yaml 2 sql", command=lambda: self.menu_sde_2_db())
 
         sync_menu.add_cascade(label="Static data (SDE)", menu=sde_menu)
-        sync_menu.add_command(label="Import Images", command=lambda: self.menu_import_images())
+        sync_menu.add_command(label="Image Collection (IEC)", command=lambda: self.menu_import_images())
         menubar.add_cascade(label="Sync", menu=sync_menu)
 
         # add exit
