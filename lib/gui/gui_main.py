@@ -66,7 +66,8 @@ class gui_main:
 
     # download graphics
     def menu_import_images(self):
-        messagebox.showinfo("Move along!", "Not yet implemented")
+        self.logic.icons_download()
+        messagebox.showinfo("Icons downloaded", "Icons downloaded and extracted.")
 
 
     # Check and download fresh SDE files
