@@ -29,12 +29,17 @@ class image_import:
         try:
             self.get_config()
             sde_page = str(self.get_sde_page())
+            res_path = self.config.res_path
+            
+            self.dir_check(res_path)
+            self.dir_clean(res_path)
+            
             objects = self.config.graphic_flies
             for obj in objects:
-                r = re.compile(obj.url_regex)
+                r = re.compile(obj)
                 match = re.search(r, sde_page)
                 url = match.group(0)
-                path = obj.res_path
+                path = res_path
                 self.log.info(f'downloading {url}')
                 self.load_zip(url, path)    
         except Exception as e:
@@ -55,8 +60,6 @@ class image_import:
     def load_zip(self, url, path):
         try:
             data = self.http.http_get_bytes(url)
-            self.dir_check(path)
-            self.dir_clean(path)
             with zipfile.ZipFile(data, 'r') as zip:
                 zip.extractall(path)
         except Exception as e:

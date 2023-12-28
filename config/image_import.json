@@ -1,17 +1,9 @@
 {
     "sde_page_url": "https://developers.eveonline.com/resource",
-    "graphic_flies": {
-        "icons": {
-            "url_regex": "https://web.ccpgamescdn.com/.+Icons.zip(?=\">)",
-            "res_path": "resources/graphics/icons"
-        },
-        "renders": {
-            "url_regex": "https://web.ccpgamescdn.com/.+Renders.zip(?=\">)",
-            "res_path": "resources/graphics/renders"
-        },
-        "types": {
-            "url_regex": "https://web.ccpgamescdn.com/.+Icons.zip(?=\">)",
-            "res_path": "resources/graphics/types"
-        }
-    }
+    "res_path": "resources/graphics/",
+    "graphic_flies": [
+        "https://web.ccpgamescdn.com/.+Icons.zip(?=\">)",
+        "https://web.ccpgamescdn.com/.+Renders.zip(?=\">)",
+        "https://web.ccpgamescdn.com/.+Icons.zip(?=\">)"
+    ]
 }
