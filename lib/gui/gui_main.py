@@ -4,11 +4,11 @@ from tkinter import messagebox
 from tkinter import ttk
 
 from logic import logic
-
+from lib.logger import logger
 
 class gui_main:
 
-    def __init__(self, log, title:str, width:int, height:int):
+    def __init__(self, log:logger, title:str, width:int, height:int):
         self.log = log
         self.title = title
         self.width = width

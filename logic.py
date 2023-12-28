@@ -6,8 +6,9 @@ from lib.logger import logger
 
 class logic:
 
-    def __init__(self, logger):
-        self.log = logger
+    def __init__(self, log: logger):
+        self.log = log
+
 
     # try start updating SDE zips
     def sde_update(self):
