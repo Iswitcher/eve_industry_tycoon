@@ -45,7 +45,7 @@ class gui_main:
         sde_menu.add_command(label="Parse SDE to db", command=lambda: self.menu_sde_2_db())
 
         sync_menu.add_cascade(label="Static data (SDE)", menu=sde_menu)
-        sync_menu.add_command(label="Import Images (WIP)", command=lambda: self.menu_import_images())
+        sync_menu.add_command(label="Import Images", command=lambda: self.menu_import_images())
         menubar.add_cascade(label="Sync", menu=sync_menu)
 
         # add exit
@@ -66,7 +66,8 @@ class gui_main:
 
     # download graphics
     def menu_import_images(self):
-        messagebox.showinfo("Move along!", "Not yet implemented")
+        self.logic.icons_download()
+        messagebox.showinfo("Icons downloaded", "Icons downloaded and extracted.")
 
 
     # Check and download fresh SDE files
