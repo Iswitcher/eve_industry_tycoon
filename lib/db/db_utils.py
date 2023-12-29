@@ -15,7 +15,7 @@ class db_utils:
         self.sync_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.future_date = datetime(9999, 12, 31, 23, 59, 59, 0)
         
-        self.hashset = []
+        self.hashsets = {}
     
     
     # refresh sync_date
@@ -150,8 +150,7 @@ class db_utils:
     def record_add_or_replace(self, table, id_name, id, columns, values):
         try:
             h = self.get_record_hash_md5(values)
-            # if hash == self.get_old_record_hash(table, h):
-            if self.is_hash_in_hashset(h) == True:
+            if self.is_hash_in_hashset(h, table) == True:
                 self.record_set_is_updated(table, id_name, id)
                 return
             self.record_add(table, h, columns, values)
@@ -169,27 +168,8 @@ class db_utils:
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.logger.critical(f'ERROR in {method_name}: {e}')
-    
-    
-    # get old record by id
-    def get_old_record_hash(self, table, h):
-        try:
-            q = f"""
-                SELECT hash
-                FROM {table}
-                WHERE hash = '{h}'
-                AND end_date > DATE('now')
-                """
-            self._cursor.execute(q)
-            row = self._cursor.fetchone()
-            if row is not None:
-                return row[0]
-            return None
-        except Exception as e:
-            method_name = traceback.extract_stack(None, 2)[0][2]
-            self.log.critical(f'ERROR in {method_name}: {e}')
-        
-        
+
+
     # set end date for old record
     def record_close(self, table, key, value):
         try:
@@ -204,8 +184,8 @@ class db_utils:
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
-    
-    
+
+
     # mark the record as updated
     def record_set_is_updated(self, table, key, value):
         try:
@@ -219,8 +199,8 @@ class db_utils:
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
-            
-            
+
+
     # add new record
     def record_add(self, table, hash, columns, values):
         try:
@@ -243,8 +223,8 @@ class db_utils:
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
-        
-    
+
+
     def get_insert_query(self, table, columns, values):
         # str_values = [str(value) for value in values]
         query = f"""
@@ -252,7 +232,7 @@ class db_utils:
             VALUES ({", ".join(["?" for _ in values])})
         """
         return {'query': query, 'values': tuple(values)}
-    
+
 
     # unflag all rows before sync
     def table_start_sync(self, table):
@@ -283,12 +263,12 @@ class db_utils:
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
-            
-    
+
+
     # get hashes for all active records
     def table_get_active_hashset(self, table):
         try:
-            self.hashset.clear()
+            self.hashsets[table] = set()
             q = f"""
                 SELECT hash
                 FROM {table}
@@ -296,18 +276,18 @@ class db_utils:
                 """
             self._cursor.execute(q)
             result = self._cursor.fetchall()
-            self.hashset = [row[0] for row in result]
+            for row in result:
+                self.hashsets[table].add(row[0])
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
-            
-            
+
+
     # check if hash is present in table hashset
-    def is_hash_in_hashset(self, h):
+    def is_hash_in_hashset(self, h, table):
         try:
-            for item in self.hashset:
-                if h == item:
-                    return True
+            if h in self.hashsets[table]:
+                return True
             return False
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
