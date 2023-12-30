@@ -21,8 +21,8 @@ class gui_main:
         self.window.minsize(800, 600)
         self.window.title(self.title)
         self.window.geometry(f"{self.width}x{self.height}")
-        self.create_menubar(self.window)
         
+        self.create_menubar(self.window)
         self.set_layout(self.window)
 
         self.window.mainloop()
@@ -32,26 +32,37 @@ class gui_main:
         menubar = tk.Menu(window)
 
         # add main menu
-        main_menu = tk.Menu(menubar, tearoff=0)
-        #main_menu.add_command(label="Settings", command=0)
-        menubar.add_cascade(label="Main", menu=main_menu)
-
+        menubar = self.menubar_add_main(menubar)
+        
         # add sync menu
-        sync_menu = tk.Menu(menubar, tearoff=0)
-        # add SDE submenu
-        sde_menu = tk.Menu(sync_menu, tearoff=0)
-        sde_menu.add_command(label="Download yaml", command=lambda: self.menu_update_sde())
-
-        sde_menu.add_command(label="Parse yaml 2 sql", command=lambda: self.menu_sde_2_db())
-
-        sync_menu.add_cascade(label="Static data (SDE)", menu=sde_menu)
-        sync_menu.add_command(label="Image Collection (IEC)", command=lambda: self.menu_import_images())
-        menubar.add_cascade(label="Sync", menu=sync_menu)
+        menubar = self.menubar_add_sync(menubar)
 
         # add exit
         menubar.add_command(label="Exit", command=lambda: self.menu_exit())
 
         window.config(menu=menubar)
+        return menubar
+
+
+    # add main menu
+    def menubar_add_main(self, menubar:tk.Menu):
+        main_menu = tk.Menu(menubar, tearoff=0)
+        #main_menu.add_command(label="Settings", command=0)
+        menubar.add_cascade(label="Main", menu=main_menu)
+        return menubar
+
+
+    def menubar_add_sync(self,menubar:tk.Menu):
+        sync_menu = tk.Menu(menubar, tearoff=0)
+        
+        # add SDE submenu
+        sde_menu = tk.Menu(sync_menu, tearoff=0)
+        sync_menu.add_cascade(label="Static data (SDE)", menu=sde_menu)
+        sde_menu.add_command(label="Download yaml", command=lambda: self.menu_update_sde())
+        sde_menu.add_command(label="Parse yaml 2 sql", command=lambda: self.menu_sde_2_db())
+        
+        sync_menu.add_command(label="Image Collection (IEC)", command=lambda: self.menu_import_images())
+        menubar.add_cascade(label="Sync", menu=sync_menu)
         return menubar
 
 
