@@ -4,6 +4,6 @@
     "graphic_flies": [
         "https://web.ccpgamescdn.com/.+Icons.zip(?=\">)",
         "https://web.ccpgamescdn.com/.+Renders.zip(?=\">)",
-        "https://web.ccpgamescdn.com/.+Icons.zip(?=\">)"
+        "https://web.ccpgamescdn.com/.+Types.zip(?=\">)"
     ]
 }
