@@ -35,6 +35,9 @@ class gui_main:
         # add main menu
         menubar = self.menubar_add_main(menubar)
         
+        # add char menu
+        menubar = self.menubar_add_char(menubar)
+        
         # add sync menu
         menubar = self.menubar_add_sync(menubar)
 
@@ -47,23 +50,30 @@ class gui_main:
 
     # add main menu
     def menubar_add_main(self, menubar:tk.Menu):
-        main_menu = tk.Menu(menubar, tearoff=0)
+        menu = tk.Menu(menubar, tearoff=0)
         #main_menu.add_command(label="Settings", command=0)
-        menubar.add_cascade(label="Main", menu=main_menu)
+        menubar.add_cascade(label="Main", menu=menu)
+        return menubar
+
+
+    def menubar_add_char(self,menubar:tk.Menu):
+        menu = tk.Menu(menubar, tearoff=0)
+        menu.add_command(label="Add character (SSO)", command='')
+        menubar.add_cascade(label="Characters", menu=menu)
         return menubar
 
 
     def menubar_add_sync(self,menubar:tk.Menu):
-        sync_menu = tk.Menu(menubar, tearoff=0)
+        menu = tk.Menu(menubar, tearoff=0)
         
         # add SDE submenu
-        sde_menu = tk.Menu(sync_menu, tearoff=0)
-        sync_menu.add_cascade(label="Static data (SDE)", menu=sde_menu)
+        sde_menu = tk.Menu(menu, tearoff=0)
+        menu.add_cascade(label="Static data (SDE)", menu=sde_menu)
         sde_menu.add_command(label="Download yaml", command=lambda: self.menu_update_sde())
         sde_menu.add_command(label="Parse yaml 2 sql", command=lambda: self.menu_sde_2_db())
         
-        sync_menu.add_command(label="Image Collection (IEC)", command=lambda: self.menu_import_images())
-        menubar.add_cascade(label="Sync", menu=sync_menu)
+        menu.add_command(label="Image Collection (IEC)", command=lambda: self.menu_import_images())
+        menubar.add_cascade(label="Sync", menu=menu)
         return menubar
 
 
