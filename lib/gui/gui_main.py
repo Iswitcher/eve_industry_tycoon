@@ -2,6 +2,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
+from PIL import Image, ImageTk
 
 from logic import logic
 from lib.logger import logger
@@ -191,26 +192,29 @@ class gui_main:
 
 
     def populate_frame_navigation(self, frame):
-        market_btn = tk.Button(frame,text='Market')
+        path = 'assets/gui/nav_panel/Market.png'
+        global img_nav_market
+        img_nav_market = ImageTk.PhotoImage(Image.open(path))
+        market_btn = tk.Button(frame, text='Market', image=img_nav_market)
         market_btn.pack(fill='x', side='top')
         
-        contracts_btn = tk.Button(frame,text='Contracts')
+        contracts_btn = tk.Button(frame, text='Contracts')
         contracts_btn.pack(fill='x', side='top')
         
-        industry_btn = tk.Button(frame,text='Industry')
+        industry_btn = tk.Button(frame, text='Industry')
         industry_btn.pack(fill='x', side='top')
         
-        assets_btn = tk.Button(frame,text='Assets')
+        assets_btn = tk.Button(frame, text='Assets')
         assets_btn.pack(fill='x', side='top')
         
-        map_btn = tk.Button(frame,text='Map')
+        map_btn = tk.Button(frame, text='Map')
         map_btn.pack(fill='x', side='top')
         
-        debug = tk.Button(frame,text='Debug')
+        debug = tk.Button(frame, text='Debug')
         debug.pack(fill='x', side='bottom')
 
 
-    def populate_frame_main(self, frame):
+    def populate_frame_main(self, frame):        
         nav_label = tk.Label(master=frame, text="Main panel")
         nav_label.place(x=0, y=0)
         
