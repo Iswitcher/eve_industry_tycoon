@@ -168,7 +168,7 @@ class gui_main:
 
     def init_frame_navigation(self, parent):
         frame = tk.Frame(master=parent)
-        frame.config(width=50)
+        frame.config(width=34)
         frame.config(highlightbackground="gray")
         frame.config(highlightthickness=1)
         
@@ -208,25 +208,40 @@ class gui_main:
 
 
     def populate_frame_navigation(self, frame):
-        path = 'assets/gui/nav_panel/Market.png'
+        path_nav_market = 'assets/gui/nav_panel/Market.png'
         global img_nav_market
-        img_nav_market = ImageTk.PhotoImage(Image.open(path))
-        market_btn = tk.Button(frame, text='Market', image=img_nav_market)
+        img_nav_market = ImageTk.PhotoImage(Image.open(path_nav_market).resize((32,32)))
+        market_btn = tk.Button(frame, text='Market', image=img_nav_market, width=32, height=32)
         market_btn.pack(fill='x', side='top')
         
-        contracts_btn = tk.Button(frame, text='Contracts')
+        path_contracts = 'assets/gui/nav_panel/Market.png'
+        global img_contracts
+        img_contracts = ImageTk.PhotoImage(Image.open(path_contracts).resize((32,32)))
+        contracts_btn = tk.Button(frame, text='Contracts', image=img_contracts, width=32, height=32)
         contracts_btn.pack(fill='x', side='top')
         
-        industry_btn = tk.Button(frame, text='Industry')
+        path_industry = 'assets/gui/nav_panel/Market.png'
+        global img_industry
+        img_industry = ImageTk.PhotoImage(Image.open(path_industry).resize((32,32)))
+        industry_btn = tk.Button(frame, text='Industry', image=img_industry, width=32, height=32)
         industry_btn.pack(fill='x', side='top')
         
-        assets_btn = tk.Button(frame, text='Assets')
+        path_assets = 'assets/gui/nav_panel/Market.png'
+        global img_assets
+        img_assets = ImageTk.PhotoImage(Image.open(path_assets).resize((32,32)))
+        assets_btn = tk.Button(frame, text='Assets', image=img_assets, width=32, height=32)
         assets_btn.pack(fill='x', side='top')
         
-        map_btn = tk.Button(frame, text='Map')
+        path_map = 'assets/gui/nav_panel/Market.png'
+        global img_map
+        img_map = ImageTk.PhotoImage(Image.open(path_map).resize((32,32)))
+        map_btn = tk.Button(frame, text='Map', image=img_map, width=32, height=32)
         map_btn.pack(fill='x', side='top')
         
-        debug = tk.Button(frame, text='Debug')
+        path_debug = 'assets/gui/nav_panel/Market.png'
+        global img_debug
+        img_debug = ImageTk.PhotoImage(Image.open(path_debug).resize((32,32)))
+        debug = tk.Button(frame, text='Debug', image=img_debug, width=32, height=32)
         debug.pack(fill='x', side='bottom')
 
 
