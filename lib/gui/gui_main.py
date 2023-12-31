@@ -189,7 +189,6 @@ class gui_main:
         frame.pack_configure(fill=tk.BOTH)
         frame.pack_configure(side=tk.LEFT)
         frame.pack_configure(expand=True)
-        frame.pack
         return frame
 
 
