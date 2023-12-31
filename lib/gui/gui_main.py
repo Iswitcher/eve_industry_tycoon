@@ -59,6 +59,12 @@ class gui_main:
     def menubar_add_char(self,menubar:tk.Menu):
         menu = tk.Menu(menubar, tearoff=0)
         menu.add_command(label="Add character (SSO)", command='')
+        
+        char = tk.Menu(menubar, tearoff=0)
+        char.add_command(label="Refresh", command='')
+        char.add_command(label="Delete", command='')
+        menu.add_cascade(label="Character Dummy", menu=char)
+        
         menubar.add_cascade(label="Characters", menu=menu)
         return menubar
 
