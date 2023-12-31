@@ -16,14 +16,7 @@ class agentsInSpace(mapper):
     def check(self):
         try:
             # agents
-            if not self.db.table_check(self.agents.table_name):
-                self.db.table_create(self.agents.table_name)
-            agent_cols = [] 
-            agent_types = []
-            for column in self.agents.columns:
-                agent_cols.append(column.name)
-                agent_types.append(column.type)
-            self.db.table_column_check(self.agents.table_name, agent_cols, agent_types)
+            self.check_table(self.agents)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')

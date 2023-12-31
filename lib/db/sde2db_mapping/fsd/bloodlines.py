@@ -16,19 +16,12 @@ class bloodlines(mapper):
     def check(self):
         try:
             # bloodlines
-            if not self.db.table_check(self.bloodlines.table_name):
-                self.db.table_create(self.bloodlines.table_name)
-            bloodline_cols = [] 
-            bloodline_types = []
-            for column in self.bloodlines.columns:
-                bloodline_cols.append(column.name)
-                bloodline_types.append(column.type)
-            self.db.table_column_check(self.bloodlines.table_name, bloodline_cols, bloodline_types)
+            self.check_table(self.bloodlines)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
 
-    
+
     # start the import
     def start(self):
         try:

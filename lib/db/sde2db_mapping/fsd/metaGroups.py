@@ -20,8 +20,8 @@ class metaGroups(mapper):
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
-            
-    
+
+
     # check provided table obj
     def check_table(self, table_obj):
         try:

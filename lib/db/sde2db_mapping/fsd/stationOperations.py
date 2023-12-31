@@ -28,24 +28,8 @@ class stationOperations(mapper):
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
-            
-    
-    # check provided table obj
-    def check_table(self, table_obj):
-        try:
-            if not self.db.table_check(table_obj.table_name):
-                    self.db.table_create(table_obj.table_name)
-            cols = [] 
-            types = []
-            for column in table_obj.columns:
-                    cols.append(column.name)
-                    types.append(column.type)
-            self.db.table_column_check(table_obj.table_name, cols, types)
-        except Exception as e:
-            method_name = traceback.extract_stack(None, 2)[0][2]
-            self.log.critical(f'ERROR in {method_name}: {e}')
-    
-    
+
+
     # start the import
     def start(self):
         try:
