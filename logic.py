@@ -1,6 +1,7 @@
-from lib.web.sde_loader import sde_loader
-from lib.db.sde2db import sde2db
-from lib.web.image_import import image_import
+from lib.db.sde2db          import sde2db
+from lib.web.esi            import esi
+from lib.web.sde_loader     import sde_loader
+from lib.web.image_import   import image_import
 
 from lib.logger import logger
 
@@ -25,3 +26,9 @@ class logic:
     def icons_download(self):
         img = image_import(self.log)
         img.get_icons()
+        
+        
+    def esi_test(self) -> str:
+        swagger = esi(self.log)
+        output = swagger.esi_test()
+        return output

@@ -246,7 +246,17 @@ class gui_main:
 
     def populate_frame_main(self, frame):        
         nav_label = tk.Label(master=frame, text="Main panel")
-        nav_label.place(x=0, y=0)
+        nav_label.pack(side="top")
+
+        test_textbox = tk.Text(master=frame)
+        test_textbox.pack(fill='x', side='bottom')
         
-        textbox = tk.Text(master=frame)
-        textbox.pack(fill='x', side='bottom')
+        # TODO delete me
+        tst_btn = tk.Button(frame, text='TEST ESI', command=lambda: self.btn_click_esi_test(test_textbox))
+        tst_btn.pack(side="top")
+
+
+    def btn_click_esi_test(self, txtbox: tk.Text):
+        result = self.logic.esi_test()
+        txtbox.delete(1.0, tk.END)
+        txtbox.insert(tk.END, result)
