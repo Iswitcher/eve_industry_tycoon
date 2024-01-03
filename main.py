@@ -1,10 +1,12 @@
-from lib.gui.gui_main import gui_main
-from lib.logger import logger
+from lib.logger         import logger
+from lib.gui.gui_main   import gui_main
+from logic              import logic
 
 class Main:
     # main execution flow
     def run(self, log: logger):
-        main_window = gui_main(log, "EvE Industry Tycoon", 800, 600)
+        main_logic = logic(log)
+        main_window = gui_main(log, main_logic)
         main_window.run_window()
 
 

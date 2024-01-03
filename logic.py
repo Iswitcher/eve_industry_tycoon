@@ -26,8 +26,8 @@ class logic:
     def icons_download(self):
         img = image_import(self.log)
         img.get_icons()
-        
-        
+
+
     def esi_test(self) -> str:
         swagger = esi(self.log)
         output = swagger.esi_test()
