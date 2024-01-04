@@ -6,7 +6,9 @@ from PIL import Image, ImageTk
 
 from logic import logic
 from lib.logger import logger
+
 from lib.gui.main.menubar import menubar
+from lib.gui.main.navbar import navbar
 
 class gui_main:
 
@@ -43,8 +45,8 @@ class gui_main:
         self.populate_frame_utils(utils_frame)
         
         # navigation frame
-        nav_frame = self.init_frame_navigation(window)
-        self.populate_frame_navigation(nav_frame)
+        nav_frame = navbar(self.log, self.logic, self.window)
+        nav_frame.navbar_init()
         
         # main area, content depends on selected nav menu
         main = self.init_frame_main(window)
@@ -67,25 +69,12 @@ class gui_main:
     def init_frame_utils(self, parent):
         frame = tk.Frame(master=parent)
         frame.config(height=50)
-        frame.config(bg="gray")
+        frame.config(bg="light gray")
         frame.config(highlightbackground="gray")
         frame.config(highlightthickness=1)
         
         frame.pack_configure(fill=tk.BOTH)
         frame.pack_configure(side=tk.TOP)
-        frame.pack_configure(expand=False)
-        frame.pack
-        return frame
-
-
-    def init_frame_navigation(self, parent):
-        frame = tk.Frame(master=parent)
-        frame.config(width=34)
-        frame.config(highlightbackground="gray")
-        frame.config(highlightthickness=1)
-        
-        frame.pack_configure(fill=tk.BOTH)
-        frame.pack_configure(side=tk.LEFT)
         frame.pack_configure(expand=False)
         frame.pack
         return frame
@@ -118,47 +107,10 @@ class gui_main:
         utils_label.place(x=0, y=0) 
 
 
-    def populate_frame_navigation(self, frame):
-        path_nav_market = 'assets/gui/nav_panel/Market.png'
-        global img_nav_market
-        img_nav_market = ImageTk.PhotoImage(Image.open(path_nav_market).resize((32,32)))
-        market_btn = tk.Button(frame, text='Market', image=img_nav_market,compound="top", width=32, height=32)
-        market_btn.pack(fill='x', side='top')
-        
-        path_contracts = 'assets/gui/nav_panel/Market.png'
-        global img_contracts
-        img_contracts = ImageTk.PhotoImage(Image.open(path_contracts).resize((32,32)))
-        contracts_btn = tk.Button(frame, text='Contracts', image=img_contracts, width=32, height=32)
-        contracts_btn.pack(fill='x', side='top')
-        
-        path_industry = 'assets/gui/nav_panel/Market.png'
-        global img_industry
-        img_industry = ImageTk.PhotoImage(Image.open(path_industry).resize((32,32)))
-        industry_btn = tk.Button(frame, text='Industry', image=img_industry, width=32, height=32)
-        industry_btn.pack(fill='x', side='top')
-        
-        path_assets = 'assets/gui/nav_panel/Market.png'
-        global img_assets
-        img_assets = ImageTk.PhotoImage(Image.open(path_assets).resize((32,32)))
-        assets_btn = tk.Button(frame, text='Assets', image=img_assets, width=32, height=32)
-        assets_btn.pack(fill='x', side='top')
-        
-        path_map = 'assets/gui/nav_panel/Market.png'
-        global img_map
-        img_map = ImageTk.PhotoImage(Image.open(path_map).resize((32,32)))
-        map_btn = tk.Button(frame, text='Map', image=img_map, width=32, height=32)
-        map_btn.pack(fill='x', side='top')
-        
-        path_debug = 'assets/gui/nav_panel/Market.png'
-        global img_debug
-        img_debug = ImageTk.PhotoImage(Image.open(path_debug).resize((32,32)))
-        debug = tk.Button(frame, text='Debug', image=img_debug, width=32, height=32)
-        debug.pack(fill='x', side='bottom')
-
-
     def populate_frame_main(self, frame):        
         nav_label = tk.Label(master=frame, text="Main panel")
         nav_label.pack(side="top")
+
 
     def btn_click_esi_test(self, txtbox: tk.Text):
         result = self.logic.esi_test()
