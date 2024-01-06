@@ -38,13 +38,13 @@ class navbar(gui_main):
 
     # whenever a button is pressed - forward selected mode to parent class
     def on_button_pressed(self, mode: str):
-        super().frame_main_switch_mode(mode)
+        self.frame_main_switch_mode(mode)
 
 
     # initial mode on app start
     def on_startup(self):
         mode = 'market'
-        super().frame_main_switch_mode(mode)
+        self.frame_main_switch_mode(mode)
 
 
     def frame_add_buttons(self):

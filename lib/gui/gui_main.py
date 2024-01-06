@@ -25,6 +25,7 @@ class gui_main:
         self.utils = tk.Frame()
         
         from lib.gui.main.navbar import navbar
+        # self.navbar = tk.Frame()
         self.navbar = navbar(self.log, self.window)
         
         self.main = tk.Frame()
@@ -113,7 +114,7 @@ class gui_main:
 
 
     def populate_frame_main(self):        
-        nav_label = tk.Label(master=self.main, text="Main panel")
+        nav_label = tk.Label(master=self.main, text="Main panel.\nSelect Section in navbar to continue.")
         nav_label.pack(side="top")
 
 
@@ -124,5 +125,6 @@ class gui_main:
 
 
     def frame_main_switch_mode(self, mode:str):
+        # self.main.destroy()
         # TODO switch main frame based on imput
         blah = 123
