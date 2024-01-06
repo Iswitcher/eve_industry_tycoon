@@ -111,6 +111,12 @@ class gui_main:
     def populate_frame_utils(self):
         utils_label = tk.Label(master=self.utils, text="App tools panel")
         utils_label.place(x=0, y=0) 
+        
+        # to be deleted
+        esi_tst_btn = tk.Button(self.utils)
+        esi_tst_btn.config(text='ESI TEST')
+        esi_tst_btn.config(command=lambda: self.logic.esi_test())
+        esi_tst_btn.pack(fill='x', side='right')
 
 
     def populate_frame_main(self):        
