@@ -21,8 +21,25 @@ class gui_main:
         
         self.utils = tk.Frame()
         self.navbar = tk.Frame()
-        self.main = tk.Frame()
         self.status = tk.Frame()
+        
+        self.main = tk.Frame()
+        self.main_market = tk.Frame()
+        self.main_contracts = tk.Frame()
+        self.main_industry = tk.Frame()
+        self.main_assets = tk.Frame()
+        self.main_map = tk.Frame()
+        self.main_debug = tk.Frame()
+        
+        self.main_frames = {
+            'main'      : self.main,
+            'market'    : self.main_market,
+            'contracts' : self.main_contracts,
+            'industry'  : self.main_industry,
+            'assets'    : self.main_assets,
+            'map'       : self.main_map,
+            'debug'     : self.main_debug
+        }
 
 
     # init window and its components, launch it
@@ -47,6 +64,14 @@ class gui_main:
         self.frame_navbar_init()
         # main area, content depends on selected nav menu
         self.frame_main_init()
+        self.frame_main_market_init()
+        self.frame_main_contracts_init()
+        self.frame_main_industry_init()
+        self.frame_main_assets_init()
+        self.frame_main_map_init()
+        self.frame_main_debug_init()
+        
+        self.frame_main_switch_mode('main')
 
 
     # add window top menubar with dropdown options/actions
@@ -169,12 +194,6 @@ class gui_main:
         utils_label = tk.Label(master=self.utils, text="App tools panel")
         utils_label.place(x=0, y=0) 
         
-        # to be deleted
-        esi_tst_btn = tk.Button(self.utils)
-        esi_tst_btn.config(text='ESI TEST')
-        esi_tst_btn.config(command=lambda: self.logic.esi_test())
-        esi_tst_btn.pack(fill='x', side='right')
-        
         self.utils.pack_configure(fill=tk.BOTH)
         self.utils.pack_configure(side=tk.TOP)
         self.utils.pack_configure(expand=False)
@@ -285,28 +304,88 @@ class gui_main:
         btn.pack(fill='x', side=side)
 
 
+    # main area basic style template
+    def frame_main_init_template(self, frame:tk.Frame):
+        frame.config(height=600)
+        frame.config(width=800)
+        frame.config(highlightbackground="gray")
+        frame.config(highlightthickness=1)
+        frame.pack_forget()
+        return frame
+        
+
+    # main area when no nav section is selected
     def frame_main_init(self):
-        self.main.master = self.window
-        self.main.config(height=600)
-        self.main.config(width=800)
-        self.main.config(highlightbackground="gray")
-        self.main.config(highlightthickness=1)
+        frame = self.frame_main_init_template(self.main)
         
-        nav_label = tk.Label(master=self.main, text="Main panel.\nSelect Section in navbar to continue.")
+        nav_label = tk.Label(master=frame, text="Main panel.\nSelect Section in navbar to continue.")
         nav_label.pack(side="top")
+
+
+    # market area
+    def frame_main_market_init(self):
+        frame = self.frame_main_init_template(self.main_market)
         
-        self.main.pack_configure(fill=tk.BOTH)
-        self.main.pack_configure(side=tk.LEFT)
-        self.main.pack_configure(expand=True)
+        market_label = tk.Label(master=frame, text="Market\nWIP")
+        market_label.pack(side="top")
+
+
+    # contracts area
+    def frame_main_contracts_init(self):
+        frame = self.frame_main_init_template(self.main_contracts)
+        
+        market_label = tk.Label(master=frame, text="Contracts\nWIP")
+        market_label.pack(side="top")
+
+
+    # industry area
+    def frame_main_industry_init(self):
+        frame = self.frame_main_init_template(self.main_industry)
+        
+        market_label = tk.Label(master=frame, text="Industry\nWIP")
+        market_label.pack(side="top")
+
+
+    # assets area
+    def frame_main_assets_init(self):
+        frame = self.frame_main_init_template(self.main_assets)
+        
+        market_label = tk.Label(master=frame, text="Assets\nWIP")
+        market_label.pack(side="top")
+
+
+    # map area
+    def frame_main_map_init(self):
+        frame = self.frame_main_init_template(self.main_map)
+        
+        market_label = tk.Label(master=frame, text="Map\nWIP")
+        market_label.pack(side="top")
+
+
+    def frame_main_debug_init(self):
+        frame = self.frame_main_init_template(self.main_debug)
+        
+        market_label = tk.Label(master=frame, text="Debug")
+        market_label.pack(side="top")
+        
+        # to be deleted
+        esi_tst_btn = tk.Button(frame)
+        esi_tst_btn.config(text='ESI TEST')
+        esi_tst_btn.config(command=lambda: self.logic.esi_test())
+        esi_tst_btn.pack(side='top')
+        self.main_debug.pack_forget()
+
+
+    # hide active main frame and display selected
+    def frame_main_switch_mode(self, mode:str):
+        for frame in self.main_frames:
+            if frame!=mode:
+                self.main_frames[frame].pack_forget()
+            else:
+                self.main_frames[frame].pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
 
 
     def btn_click_esi_test(self, txtbox: tk.Text):
         result = self.logic.esi_test()
         txtbox.delete(1.0, tk.END)
         txtbox.insert(tk.END, result)
-
-
-    def frame_main_switch_mode(self, mode:str):
-        self.main.destroy()
-        # TODO switch main frame based on imput
-        blah = 123
