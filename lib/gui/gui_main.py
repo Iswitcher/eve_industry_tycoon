@@ -362,6 +362,7 @@ class gui_main:
         market_label.pack(side="top")
 
 
+    # debug section for messing aroung
     def frame_main_debug_init(self):
         frame = self.frame_main_init_template(self.main_debug)
         
