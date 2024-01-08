@@ -163,6 +163,7 @@ class gui_main:
 
     def menubar_esi_sync_regions(self):
         self.logic.esi_sync_regions()
+        messagebox.showinfo("Regions updates", "All regions fetched and updated from ESI.")
 
 
     # menubar exit button
