@@ -32,3 +32,7 @@ class logic:
         swagger = esi(self.log)
         output = swagger.esi_test()
         return output
+
+
+    def esi_sync_regions(self):
+        blah = 123
