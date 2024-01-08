@@ -122,9 +122,12 @@ class gui_main:
         menu.add_command(label="Image Collection (IEC)", 
                          command=lambda: self.menubar_import_images())
         swagger_menu = tk.Menu(menu, tearoff=0)
-        menu.add_cascade(label="Swagger data (ESI)", menu=swagger_menu)
+        swagger_menu.add_command(label="Sync All", 
+                                command='')
+        swagger_menu.add_separator()
         swagger_menu.add_command(label="Sync Universe regions", 
                                 command=lambda: self.menubar_esi_sync_regions())
+        menu.add_cascade(label="Swagger data (ESI)", menu=swagger_menu)
         master.add_cascade(label="Sync", menu=menu)
         return master
 

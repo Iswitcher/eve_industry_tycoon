@@ -1,4 +1,5 @@
 from lib.db.sde2db          import sde2db
+from lib.db.esi2db          import esi2db
 from lib.web.esi            import esi
 from lib.web.sde_loader     import sde_loader
 from lib.web.image_import   import image_import
@@ -35,4 +36,5 @@ class logic:
 
 
     def esi_sync_regions(self):
-        blah = 123
+        esi = esi2db(self.log)
+        esi.sync_universe_regions()

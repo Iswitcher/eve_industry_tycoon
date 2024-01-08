@@ -42,8 +42,8 @@ class sde2db:
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
-    
-    
+
+
     # read yaml file
     def sde_yaml_read(self, path):
         try:
@@ -81,8 +81,7 @@ class sde2db:
                 cnt += 1
             module_instance.finish()
             
-            self.db.db_commit()
-            self.db.db_disconnect()
+            
             t = round(time.time() - t_start, 4)
             self.log.info(f'Finish converting: {path}, {t}s passed.')
         except Exception as e:
