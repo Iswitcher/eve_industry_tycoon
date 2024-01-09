@@ -47,6 +47,7 @@ class esi2db:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
 
+
     # sync esi info about active regions
     def sync_universe_regions(self):
         try:
@@ -68,6 +69,33 @@ class esi2db:
                     continue
                 data.append(region_info)
                 self.log.info(f'Region {region} fetched. ({i}/{len(regions)})')
+            self.esi_run_import(module_path, data)
+        except Exception as e:
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            self.log.critical(f'ERROR in {method_name}: {e}')
+
+
+    # sync esi info about active regions
+    def sync_universe_constellations(self):
+        try:
+            module_path = 'universe_constellation'
+            
+            constellations = self.esi.universe_get_constelations()
+            if constellations == "":
+                self.log.critical(f'No constellations found')
+                return
+            constellations = json.loads(constellations)
+            
+            data = []
+            i = 0
+            for constellation in constellations:
+                i += 1
+                region_info = json.loads(self.esi.universe_get_constellation_info(constellation))
+                if region_info == '':
+                    self.log.critical(f'CANNOT fetch constellation {constellation}. ({i}/{len(constellations)})')
+                    continue
+                data.append(region_info)
+                self.log.info(f'Constellation {constellation} fetched. ({i}/{len(constellations)})')
             self.esi_run_import(module_path, data)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]

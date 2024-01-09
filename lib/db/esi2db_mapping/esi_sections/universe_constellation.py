@@ -4,23 +4,23 @@ from lib.db.esi2db_mapping.esi_mapper import mapper
 from lib.db.db_utils import db_utils
 from lib.logger import logger
 
-class universe_region(mapper):
+class universe_constellation(mapper):
     
     def __init__(self, db: db_utils, log:logger):
         self.db = db
         self.log = log
-        self.regions = table_regions()
-        self.constellations = table_region_constellations()
+        self.constellations = table_constellations()
+        self.systems = table_constellation_constellations()
 
 
     # check if all tables are present
     def check(self):
         try:
-            # regions
-            self.check_table(self.regions)
-            
-            # region_constellations
+            # constellations
             self.check_table(self.constellations)
+            
+            # constellation_systems
+            self.check_table(self.systems)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
@@ -29,8 +29,8 @@ class universe_region(mapper):
     # start the import
     def start(self):
         try:
-            self.db.table_start_sync(self.regions.table_name)
             self.db.table_start_sync(self.constellations.table_name)
+            self.db.table_start_sync(self.systems.table_name)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
@@ -39,8 +39,8 @@ class universe_region(mapper):
     # add new row
     def run(self, row):
         try:
-            self.add_region(self.regions, row)
-            self.add_constellations(self.constellations, row)
+            self.add_constellation(self.constellations, row)
+            self.add_system(self.systems, row)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
@@ -49,15 +49,15 @@ class universe_region(mapper):
     # complete the import
     def finish(self):
         try:
-            self.db.table_finish_sync(self.regions.table_name)
             self.db.table_finish_sync(self.constellations.table_name)
+            self.db.table_finish_sync(self.systems.table_name)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}') 
 
 
-    # add region
-    def add_region(self, table_obj, row):
+    # add constellation
+    def add_constellation(self, table_obj, row):
         try:
             columns = []
             values = []
@@ -76,23 +76,23 @@ class universe_region(mapper):
             self.log.critical(f'ERROR in {method_name}: {e}')
 
 
-    # add constellation
-    def add_constellations(self, table_obj, row):
+    # add system
+    def add_system(self, table_obj, row):
         try:
             table = table_obj.table_name
             pk = table_obj.table_pk
-            region_id = self.json_value_get(row, 'region_id')
-            constellations = self.json_value_get(row, 'constellations')
+            constellation_id = self.json_value_get(row, 'constellation_id')
+            constellations = self.json_value_get(row, 'systems')
             for c in constellations:
                 columns = []
                 values = []
                 
-                columns.append('region_id')
-                values.append(region_id)
-                
                 columns.append('constellation_id')
+                values.append(constellation_id)
+                
+                columns.append('system_id')
                 values.append(c)
-                self.db.record_add_or_replace(table, pk, region_id, columns, values)
+                self.db.record_add_or_replace(table, pk, constellation_id, columns, values)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
             self.log.critical(f'ERROR in {method_name}: {e}')
@@ -105,22 +105,25 @@ class col:
         self.path = path
     
 
-class table_regions:
+class table_constellations:
     def __init__(self):
-        self.table_name = 'universe_regions'
-        self.table_pk = 'region_id'
-        self.columns = []
-        
-        self.columns.append(col('region_id',    'NUMBER', 'region_id'))
-        self.columns.append(col('name',         'TEXT', 'name'))
-        self.columns.append(col('description',  'TEXT', 'description'))
-
-
-class table_region_constellations:
-    def __init__(self):
-        self.table_name = 'universe_region_constellations'
-        self.table_pk = 'region_id'
+        self.table_name = 'universe_constellations'
+        self.table_pk = 'constellation_id'
         self.columns = []
         
         self.columns.append(col('region_id',        'NUMBER', 'region_id'))
-        self.columns.append(col('constellation_id', 'NUMBER', ''))
+        self.columns.append(col('constellation_id', 'NUMBER', 'constellation_id'))
+        self.columns.append(col('name',             'TEXT', 'name'))
+        self.columns.append(col('pos_x',            'NUMBER', 'position/x'))
+        self.columns.append(col('pos_y',            'NUMBER', 'position/y'))
+        self.columns.append(col('pos_z',            'NUMBER', 'position/z'))
+
+
+class table_constellation_constellations:
+    def __init__(self):
+        self.table_name = 'universe_constellation_systems'
+        self.table_pk = 'constellation_id'
+        self.columns = []
+        
+        self.columns.append(col('constellation_id', 'NUMBER', 'constellation_id'))
+        self.columns.append(col('system_id',        'NUMBER', ''))

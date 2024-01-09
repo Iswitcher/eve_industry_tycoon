@@ -127,6 +127,8 @@ class gui_main:
         swagger_menu.add_separator()
         swagger_menu.add_command(label="Sync Universe regions", 
                                 command=lambda: self.menubar_esi_sync_regions())
+        swagger_menu.add_command(label="Sync Universe constellations", 
+                                command=lambda: self.menubar_esi_sync_constellations())
         menu.add_cascade(label="Swagger data (ESI)", menu=swagger_menu)
         master.add_cascade(label="Sync", menu=menu)
         return master
@@ -163,7 +165,12 @@ class gui_main:
 
     def menubar_esi_sync_regions(self):
         self.logic.esi_sync_regions()
-        messagebox.showinfo("Regions updates", "All regions fetched and updated from ESI.")
+        messagebox.showinfo("Regions updated", "All regions fetched and updated from ESI.")
+
+
+    def menubar_esi_sync_constellations(self):
+        self.logic.esi_sync_constellations()
+        messagebox.showinfo("Constellations updated", "All constellations fetched and updated from ESI.")
 
 
     # menubar exit button

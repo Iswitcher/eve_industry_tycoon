@@ -136,7 +136,7 @@ class esi:
 
 
     # Get information on a constellation
-    def universe_get_constelation_info(self, constellation_id):
+    def universe_get_constellation_info(self, constellation_id):
         url = f'{self.swagger_url}/universe/constellations/{constellation_id}/'
         params = self.esi_get_params()
         

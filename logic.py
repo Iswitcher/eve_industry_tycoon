@@ -38,3 +38,8 @@ class logic:
     def esi_sync_regions(self):
         esi = esi2db(self.log)
         esi.sync_universe_regions()
+
+
+    def esi_sync_constellations(self):
+        esi = esi2db(self.log)
+        esi.sync_universe_constellations()
