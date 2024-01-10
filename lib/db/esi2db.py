@@ -75,7 +75,7 @@ class esi2db:
             self.log.critical(f'ERROR in {method_name}: {e}')
 
 
-    # sync esi info about active regions
+    # sync esi info about active constellations
     def sync_universe_constellations(self):
         try:
             module_path = 'universe_constellation'
@@ -90,12 +90,39 @@ class esi2db:
             i = 0
             for constellation in constellations:
                 i += 1
-                region_info = json.loads(self.esi.universe_get_constellation_info(constellation))
-                if region_info == '':
+                constellation_info = json.loads(self.esi.universe_get_constellation_info(constellation))
+                if constellation_info == '':
                     self.log.critical(f'CANNOT fetch constellation {constellation}. ({i}/{len(constellations)})')
                     continue
-                data.append(region_info)
+                data.append(constellation_info)
                 self.log.info(f'Constellation {constellation} fetched. ({i}/{len(constellations)})')
+            self.esi_run_import(module_path, data)
+        except Exception as e:
+            method_name = traceback.extract_stack(None, 2)[0][2]
+            self.log.critical(f'ERROR in {method_name}: {e}')
+
+
+    # sync esi info about active systems
+    def sync_universe_systems(self):
+        try:
+            module_path = 'universe_system'
+            
+            systems = self.esi.universe_get_systems()
+            if systems == "":
+                self.log.critical(f'No systems found')
+                return
+            systems = json.loads(systems)
+            
+            data = []
+            i = 0
+            for system in systems:
+                i += 1
+                system_info = json.loads(self.esi.universe_get_system_info(system))
+                if system_info == '':
+                    self.log.critical(f'CANNOT fetch system {system}. ({i}/{len(systems)})')
+                    continue
+                data.append(system_info)
+                self.log.info(f'System {system} fetched. ({i}/{len(systems)})')
             self.esi_run_import(module_path, data)
         except Exception as e:
             method_name = traceback.extract_stack(None, 2)[0][2]
