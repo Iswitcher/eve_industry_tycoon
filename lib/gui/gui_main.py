@@ -352,8 +352,16 @@ class gui_main:
     def frame_main_market_init(self):
         frame = self.frame_main_init_template(self.main_market)
         
-        market_label = tk.Label(master=frame, text="Market\nWIP")
-        market_label.pack(side="top")
+        notebook = ttk.Notebook(master=frame)
+        self.create_tab("Buy orders", notebook)
+        self.create_tab("Sell orders", notebook)
+        notebook.pack(side="bottom", expand=True)
+        
+        search_btn = tk.Button(master=frame, text="Refresh")
+        search_btn.pack(side="right")
+        
+        market_label = tk.Label(master=frame, text="Market")
+        market_label.pack(side="left")
 
 
     # contracts area
@@ -416,3 +424,10 @@ class gui_main:
         result = self.logic.esi_test()
         txtbox.delete(1.0, tk.END)
         txtbox.insert(tk.END, result)
+
+
+    def create_tab(self, tab_name, notebook):
+        tab = ttk.Frame(notebook)
+        notebook.add(tab, text=tab_name)
+        label = ttk.Label(tab, text=f"Content of {tab_name} tab")
+        label.pack(expand=True, fill="both")
