@@ -82,7 +82,7 @@ class table_groups:
         self.columns.append(col('anchored',                 'TEXT', 'anchored'))
         self.columns.append(col('category_id',              'NUMBER', 'categoryID'))
         self.columns.append(col('fittable_non_singleton',   'TEXT', 'fittableNonSingleton'))
-        self.columns.append(col('published',                'TEXT', 'published'))
+        self.columns.append(col('is_published',             'TEXT', 'published'))
         self.columns.append(col('useBasePrice',             'TEXT', 'useBasePrice'))
         self.columns.append(col('icon_id',                  'NUMBER', 'iconID'))
         self.columns.append(col('name_en',                  'NUMBER', 'name/en'))
