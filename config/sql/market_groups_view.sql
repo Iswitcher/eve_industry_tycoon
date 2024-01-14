@@ -8,7 +8,7 @@ select market_group_id
 	,has_types
 	,icon_id
 	,name_en as name
-	,desc_en as desc, *
+	,desc_en as desc
 from market_groups
 where end_date > DATE('now');
 
