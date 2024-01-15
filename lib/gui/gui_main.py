@@ -352,16 +352,27 @@ class gui_main:
     def frame_main_market_init(self):
         frame = self.frame_main_init_template(self.main_market)
         
+        types_tree_view = ttk.Treeview(master=frame)
+        types_tree_view = self.treeview_add_data(types_tree_view, '')
+        types_tree_view.pack(side='left', fill='y')
+        
+        filters_label_frame = ttk.LabelFrame(master=frame)
+        filters_label_frame.config(text='filters')
+        filters_label_frame.pack(side='top', fill='x')
+        
+        search_btn = tk.Button(master=filters_label_frame, text='Refresh')
+        search_btn.pack(side='right')
+        
+        # market_label = tk.Label(master=frame, text="Market")
+        # market_label.pack(side="top")
+        
+        
         notebook = ttk.Notebook(master=frame)
-        self.create_tab("Buy orders", notebook)
-        self.create_tab("Sell orders", notebook)
-        notebook.pack(side="bottom", expand=True)
+        self.create_tab('Buy orders', notebook)
+        self.create_tab('Sell orders', notebook)
+        notebook.pack(side="bottom", fill='x')
         
-        search_btn = tk.Button(master=frame, text="Refresh")
-        search_btn.pack(side="right")
         
-        market_label = tk.Label(master=frame, text="Market")
-        market_label.pack(side="left")
 
 
     # contracts area
@@ -431,3 +442,27 @@ class gui_main:
         notebook.add(tab, text=tab_name)
         label = ttk.Label(tab, text=f"Content of {tab_name} tab")
         label.pack(expand=True, fill="both")
+
+
+    def treeview_add_data(self, tv: ttk.Treeview, data: object):
+        # tv.insert('', 'end', text='blah')
+        
+        tv.insert("", "end", "A", text="A")
+        tv.insert("", "end", "B", text="B")
+        tv.insert("A", "end", "A.1", text="A.1")
+        tv.insert("A.1", "end", "A.1.1", text="A.1.1")
+        tv.insert("A", "end", "A.2", text="A.2")
+        tv.insert("A.2", "end", "A.2.1", text="A.2.1")
+        tv.insert("A.2", "end", "A.2.2", text="A.2.2")
+        tv.insert("B", "end", "B.1", text="B.1")
+        tv.insert("B", "end", "B.2", text="B.2")
+        tv.insert("B.1", "end", "B.1.1", text="B.1.1")
+        
+        return tv
+        # for key, values in data.items():
+            # item = treeview.insert(treeview, 'end', text=key)
+            # if values:
+            #     self.treeview_add_data(item, treeview, values)
+
+            # for value in values:
+            #     treeview.insert(item, 'end', text=value)
