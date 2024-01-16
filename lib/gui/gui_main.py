@@ -369,7 +369,7 @@ class gui_main:
         notebook = ttk.Notebook(master=frame)
         self.create_tab('Buy orders', notebook)
         self.create_tab('Sell orders', notebook)
-        notebook.pack(side="bottom", fill='x')
+        notebook.pack(side="bottom", fill='both')
         
         
 
