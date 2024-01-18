@@ -364,14 +364,26 @@ class gui_main:
         filters_label_frame.pack(side='top', fill='x')
         
         search_btn = tk.Button(master=filters_label_frame, text='Refresh')
-        search_btn.pack(side='right')        
+        search_btn.pack(side='right')
         
+        self.frame_main_market_add_orders(frame)
+
+
+
+    def frame_main_market_add_orders(self, frame):
         notebook = ttk.Notebook(master=frame)
-        self.create_tab('Buy orders', notebook)
-        self.create_tab('Sell orders', notebook)
-        notebook.pack(side="bottom", fill='both')
         
+        buy_orders_tab = ttk.Frame(notebook)
+        notebook.add(buy_orders_tab, text='Buy orders')
+        buy_list = tk.Listbox(master=buy_orders_tab, height=300)
+        buy_list.pack(side='top', fill='x')
         
+        sell_orders_tab = ttk.Frame(notebook)
+        notebook.add(sell_orders_tab, text='Sell orders')
+        sell_list = tk.Listbox(master=sell_orders_tab, height=300)
+        sell_list.pack(side='top', fill='x')
+        
+        notebook.pack(side='bottom', fill='both')
 
 
     # contracts area
@@ -434,13 +446,6 @@ class gui_main:
         result = self.logic.esi_test()
         txtbox.delete(1.0, tk.END)
         txtbox.insert(tk.END, result)
-
-
-    def create_tab(self, tab_name, notebook):
-        tab = ttk.Frame(notebook)
-        notebook.add(tab, text=tab_name)
-        label = ttk.Label(tab, text=f"Content of {tab_name} tab")
-        label.pack(expand=True, fill="both")
 
 
     def treeview_add_data(self, tv: ttk.Treeview, data: object):
