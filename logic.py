@@ -24,27 +24,32 @@ class logic:
         sde.sde_convert_all()
 
 
+    # download and unpack eve icons from server
     def icons_download(self):
         img = image_import(self.log)
         img.get_icons()
 
 
+    # TODO: delete me
     def esi_test(self) -> str:
         swagger = esi(self.log)
         output = swagger.esi_test()
         return output
 
 
+    # get and save all eve regions to static db
     def esi_sync_regions(self):
         esi = esi2db(self.log)
         esi.sync_universe_regions()
 
 
+    # get and save all eve constellations to static db
     def esi_sync_constellations(self):
         esi = esi2db(self.log)
         esi.sync_universe_constellations()
 
 
+    # get and save all eve systems to static db
     def esi_sync_systems(self):
         esi = esi2db(self.log)
         esi.sync_universe_systems()
