@@ -357,6 +357,7 @@ class gui_main:
         
         types_tree_view = ttk.Treeview(master=frame)
         types_tree_view = self.treeview_add_data(types_tree_view, '')
+        types_tree_view.bind("<<TreeviewSelect>>", self.on_click_treeview())
         types_tree_view.pack(side='left', fill='y')
         
         filters_label_frame = ttk.LabelFrame(master=frame)
@@ -463,3 +464,7 @@ class gui_main:
         tv.insert("B.1", "end", "B.1.1", text="B.1.1")
         
         return tv
+
+
+    def on_click_treeview(self):
+        self.log.info(f'Testing treeview')
